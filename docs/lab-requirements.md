@@ -13,5 +13,5 @@ The following Cisco IOL images are used for network simulation:
   Used for Layer 3 routing (Core Layer)
 
 ## Note on Licensing
-Cisco IOS/IOL images are proprietary software and are not included in this repository due to licensing restriction$
+Cisco IOS/IOL images are proprietary software and are not included in this repository due to licensing restriction.
 Users must obtain these images legally and load them into their own PNetLab environment.
