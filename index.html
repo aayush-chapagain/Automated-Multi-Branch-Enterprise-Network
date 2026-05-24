@@ -758,43 +758,59 @@ function runAlgorithms(){
   <div class="g2">
     <div class="card">
       <div class="card-header">
-        <div class="card-title" style="margin:0"><i class="ti ti-database"></i> Configuration backups</div>
-        <button class="btn btn-blue btn-sm" onclick="fetch('/api/cloud_backup', {method:'POST'}).then(r=>r.json()).then(d=>alert(d.message))">
-          <i class="ti ti-download"></i> Run backup
+        <div class="card-title" style="margin:0"><i class="ti ti-database"></i> Database backups — GitHub cloud</div>
+        <button class="btn btn-blue btn-sm" onclick="runCloudBackup()">
+          <i class="ti ti-cloud-upload"></i> Backup now
         </button>
       </div>
       <div id="backup-list"><div class="loading"><i class="ti ti-loader"></i> Loading...</div></div>
     </div>
     <div class="card">
-      <div class="card-title"><i class="ti ti-info-circle"></i> Backup guide</div>
+      <div class="card-title"><i class="ti ti-chart-bar"></i> Backup statistics</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
         <div style="background:#0f1117;border-radius:8px;padding:14px;border:1px solid #2d3148;text-align:center">
-          <div class="value c-purple" id="backup-count" style="font-size:24px">--</div>
+          <div style="font-size:28px;font-weight:700;color:#a78bfa" id="backup-count">--</div>
           <div style="font-size:12px;color:#64748b;margin-top:4px">Total backups</div>
         </div>
         <div style="background:#0f1117;border-radius:8px;padding:14px;border:1px solid #2d3148;text-align:center">
-          <div class="value c-green" id="device-count" style="font-size:24px">--</div>
+          <div style="font-size:28px;font-weight:700;color:#4ade80" id="device-count">26</div>
           <div style="font-size:12px;color:#64748b;margin-top:4px">Devices tracked</div>
         </div>
       </div>
-      <div class="code-box">
-<span style="color:#475569"># Connect to Linux server</span>
-<span style="color:#4ade80">ssh netadmin@192.168.1.140</span>
-
-<span style="color:#475569"># Run config backup</span>
-<span style="color:#4ade80">cd ~/automation</span>
-<span style="color:#4ade80">python3 backup_configs.py</span>
-
-<span style="color:#475569"># Run health check</span>
-<span style="color:#4ade80">python3 health_score.py</span>
-
-<span style="color:#475569"># Schedule (cron every 6h)</span>
-<span style="color:#4ade80">crontab -e</span>
-<span style="color:#94a3b8">0 */6 * * * python3 ~/automation/backup_configs.py</span>
-<span style="color:#94a3b8">0 */1 * * * python3 ~/automation/health_score.py</span>
+      <div style="background:#0f1117;border-radius:8px;padding:14px;border:1px solid #2d3148;margin-bottom:10px">
+        <div style="font-size:12px;color:#64748b;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">Backup strategy</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;align-items:center;gap:10px;font-size:13px">
+            <span style="color:#4ade80">✅</span>
+            <span style="color:#94a3b8">MySQL database dump every 6 hours</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;font-size:13px">
+            <span style="color:#4ade80">✅</span>
+            <span style="color:#94a3b8">Auto-pushed to GitHub repository</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;font-size:13px">
+            <span style="color:#4ade80">✅</span>
+            <span style="color:#94a3b8">Manual backup via dashboard button</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;font-size:13px">
+            <span style="color:#60a5fa">📁</span>
+            <span style="color:#94a3b8">Stored at: automation/database/</span>
+          </div>
+        </div>
+      </div>
+      <div style="background:#0f1117;border-radius:8px;padding:14px;border:1px solid #2d3148">
+        <div style="font-size:12px;color:#64748b;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">GitHub repository</div>
+        <a href="https://github.com/aayush-chapagain/Automated-Multi-Branch-Enterprise-Network" target="_blank" style="color:#60a5fa;font-size:13px;text-decoration:none;font-family:monospace">
+          github.com/aayush-chapagain/Automated-Multi-Branch-Enterprise-Network
+        </a>
       </div>
     </div>
   </div>
+  <div id="backup-popup" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#1a1d27;border:1px solid #2d3148;border-radius:12px;padding:24px;z-index:9999;min-width:300px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.7)">
+    <div id="backup-popup-msg" style="font-size:14px;color:#e2e8f0;margin-bottom:16px">Running backup...</div>
+    <button onclick="document.getElementById('backup-popup').style.display='none'" class="btn btn-blue btn-sm">OK</button>
+  </div>
+  <div id="backup-overlay" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:9998;background:rgba(0,0,0,.5)"></div>
 </div>
 
 <!-- INVENTORY -->
@@ -1116,22 +1132,40 @@ function filterTable() {
 
 // ── LOAD BACKUPS ──────────────────────────────────────────
 function loadBackups() {
-  fetchJSON('/api/backups', function(backups) {
+  fetchJSON('/api/github_backups', function(backups) {
+    document.getElementById('backup-count').textContent = backups.length;
     if (!backups.length) {
-      document.getElementById('backup-list').innerHTML = '<div style="text-align:center;padding:40px;color:#475569"><i class="ti ti-database-off" style="font-size:32px;display:block;margin-bottom:10px"></i>No backups yet.<br><span style="font-size:12px">Connect to PNetLab and run backup_configs.py</span></div>';
+      document.getElementById('backup-list').innerHTML = '<div style="text-align:center;padding:40px;color:#475569"><i class="ti ti-database-off" style="font-size:32px;display:block;margin-bottom:10px"></i>No backups yet.<br><span style="font-size:12px">Click Backup Now to create first backup</span></div>';
       return;
     }
     var html = '';
     backups.forEach(function(b) {
-      var size = b.size ? (b.size / 1024).toFixed(1) + ' KB' : '—';
+      var date = b.date.substr(0,8) + ' ' + b.date.substr(9,2) + ':' + b.date.substr(11,2) + ':' + b.date.substr(13,2);
       html += '<div style="background:#0f1117;border-radius:8px;padding:12px 14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;border:1px solid #2d3148">';
-      html += '<div><div style="font-size:13px;font-weight:600"><i class="ti ti-file-code" style="font-size:13px;color:#64748b"></i> ' + (b.hostname||'Device') + ' — config.txt</div>';
-      html += '<div style="font-size:11px;color:#64748b;margin-top:3px">' + b.backup_date + ' · ' + size + '</div></div>';
-      html += '<button class="btn btn-outline btn-sm"><i class="ti ti-eye"></i> View</button>';
+      html += '<div style="display:flex;align-items:center;gap:12px">';
+      html += '<i class="ti ti-file-database" style="font-size:20px;color:#a78bfa"></i>';
+      html += '<div><div style="font-size:13px;font-weight:600;color:#e2e8f0">' + b.filename + '</div>';
+      html += '<div style="font-size:11px;color:#64748b;margin-top:2px">' + date + ' &nbsp;·&nbsp; ' + b.size + ' KB &nbsp;·&nbsp; <span style="color:#4ade80">Synced to GitHub</span></div></div></div>';
+      html += '<span style="font-size:11px;color:#4ade80;padding:3px 8px;background:#052e16;border-radius:4px;border:1px solid #166534">✅ Cloud</span>';
       html += '</div>';
     });
     document.getElementById('backup-list').innerHTML = html;
   });
+}
+
+function runCloudBackup() {
+  document.getElementById('backup-popup-msg').textContent = '⏳ Running backup and pushing to GitHub...';
+  document.getElementById('backup-popup').style.display = 'block';
+  document.getElementById('backup-overlay').style.display = 'block';
+  fetch('/api/cloud_backup', {method:'POST'})
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      document.getElementById('backup-popup-msg').textContent = d.message;
+      loadBackups();
+    })
+    .catch(function(e){
+      document.getElementById('backup-popup-msg').textContent = 'Error: ' + e;
+    });
 }
 
 // ── INIT ──────────────────────────────────────────────────

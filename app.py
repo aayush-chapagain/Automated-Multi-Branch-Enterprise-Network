@@ -152,5 +152,25 @@ def api_cloud_backup():
     except Exception as e:
         return jsonify(success=False, message=f'❌ Backup failed: {str(e)}')
 
+
+@app.route('/api/github_backups')
+def api_github_backups():
+    try:
+        import os, glob
+        files = glob.glob('/home/netadmin/automation/database/backup_*.sql')
+        files.sort(reverse=True)
+        result = []
+        for f in files[:10]:
+            stat = os.stat(f)
+            name = os.path.basename(f)
+            result.append({
+                'filename': name,
+                'size': round(stat.st_size/1024, 1),
+                'date': name.replace('backup_','').replace('.sql','')
+            })
+        return jsonify(result)
+    except Exception as e:
+        return jsonify([])
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=False)
