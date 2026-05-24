@@ -303,66 +303,160 @@ tr:hover td { background: #1e2130; }
 <!-- TOPOLOGY -->
 <div id="page-topology" class="page">
   <div class="card">
-    <div class="card-title"><i class="ti ti-topology-star-3"></i> Network topology — 3-tier hierarchical architecture</div>
-    <div class="topo">
-      <p style="font-size:11px;color:#475569;margin-bottom:10px;text-align:center">ISP CLOUD — OSPF Process 100 · Public 100.0.x.x addressing</p>
-      <div class="topo-row">
-        <div class="topo-node tn-isp">ISP001<br><span style="font-size:9px;opacity:.7">100.0.1.x</span></div>
-        <div class="topo-hline"></div>
-        <div class="topo-node tn-isp">ISP002<br><span style="font-size:9px;opacity:.7">100.0.2.x</span></div>
-        <div class="topo-hline"></div>
-        <div class="topo-node tn-isp">ISP003<br><span style="font-size:9px;opacity:.7">100.0.3.x</span></div>
-        <div class="topo-hline"></div>
-        <div class="topo-node tn-isp">ISP004<br><span style="font-size:9px;opacity:.7">100.0.4.x</span></div>
-      </div>
-      <div class="topo-vline"></div>
-      <p style="font-size:11px;color:#475569;margin:4px 0 8px;text-align:center">CORE LAYER — OSPF Process 1 · IPsec VPN · NAT/PAT · ACL · SSH</p>
-      <div class="topo-row">
-        <div class="topo-node tn-core">A-CR1<br><span style="font-size:9px;opacity:.7">10.2.1.x</span></div>
-        <div style="width:20px;height:1px;background:#2d3148"></div>
-        <div class="topo-node tn-core">HQ-CR1<br><span style="font-size:9px;opacity:.7">10.1.1.x</span></div>
-        <div style="width:10px;height:1px;background:#2d3148"></div>
-        <div class="topo-node tn-core">HQ-CR2<br><span style="font-size:9px;opacity:.7">10.1.1.x</span></div>
-        <div style="width:20px;height:1px;background:#2d3148"></div>
-        <div class="topo-node tn-core">B-CR1<br><span style="font-size:9px;opacity:.7">10.3.1.x</span></div>
-      </div>
-      <div class="topo-vline"></div>
-      <p style="font-size:11px;color:#475569;margin:4px 0 8px;text-align:center">DISTRIBUTION LAYER — HSRP v2 · EtherChannel LACP · Rapid-PVST · DHCP relay</p>
-      <div class="topo-row">
-        <div class="topo-node tn-dist">A-DSW1<br><span style="font-size:9px;opacity:.7">10.2.10.4</span></div>
-        <div style="width:4px;height:1px;background:#2d3148"></div>
-        <div class="topo-node tn-dist">A-DSW2<br><span style="font-size:9px;opacity:.7">10.2.10.5</span></div>
-        <div style="width:14px"></div>
-        <div class="topo-node tn-dist">HQ-DSW1<br><span style="font-size:9px;opacity:.7">10.1.10.4</span></div>
-        <div style="width:4px;height:1px;background:#2d3148"></div>
-        <div class="topo-node tn-dist">HQ-DSW2<br><span style="font-size:9px;opacity:.7">10.1.10.5</span></div>
-        <div style="width:4px;height:1px;background:#2d3148"></div>
-        <div class="topo-node tn-dist">HQ-DSW3<br><span style="font-size:9px;opacity:.7">10.1.10.6</span></div>
-        <div style="width:4px;height:1px;background:#2d3148"></div>
-        <div class="topo-node tn-dist">HQ-DSW4<br><span style="font-size:9px;opacity:.7">10.1.10.7</span></div>
-        <div style="width:14px"></div>
-        <div class="topo-node tn-dist">B-DSW1<br><span style="font-size:9px;opacity:.7">10.3.10.4</span></div>
-        <div style="width:4px;height:1px;background:#2d3148"></div>
-        <div class="topo-node tn-dist">B-DSW2<br><span style="font-size:9px;opacity:.7">10.3.10.5</span></div>
-      </div>
-      <div class="topo-vline"></div>
-      <p style="font-size:11px;color:#475569;margin:4px 0 8px;text-align:center">ACCESS LAYER — VLANs 10/20/30/99 · 802.1Q Trunking · PortFast · BPDU Guard</p>
-      <div class="topo-row">
-        <div class="topo-node tn-acc">A-ASW1~4<br><span style="font-size:9px;opacity:.7">10.2.10.11~14</span></div>
-        <div style="width:20px"></div>
-        <div class="topo-node tn-acc">HQ-ASW1~6<br><span style="font-size:9px;opacity:.7">10.1.10.11~16</span></div>
-        <div style="width:20px"></div>
-        <div class="topo-node tn-acc">B-ASW1~4<br><span style="font-size:9px;opacity:.7">10.3.10.11~14</span></div>
-      </div>
-      <div class="topo-legend">
-        <span><span class="legend-dot" style="background:#2e1065;border:1.5px solid #5b21b6"></span>ISP cloud</span>
-        <span><span class="legend-dot" style="background:#1e3a5f;border:1.5px solid #1d4ed8"></span>Core routers</span>
-        <span><span class="legend-dot" style="background:#052e16;border:1.5px solid #15803d"></span>Distribution switches</span>
-        <span><span class="legend-dot" style="background:#1a1d27;border:1.5px solid #374151"></span>Access switches</span>
+    <div class="card-header">
+      <div class="card-title" style="margin:0"><i class="ti ti-topology-star-3"></i> Network topology — 3-tier hierarchical architecture</div>
+      <div style="display:flex;gap:10px;align-items:center">
+        <span style="font-size:12px;color:#64748b">Click any device for details</span>
+        <button class="btn btn-outline btn-sm" onclick="loadTopoStatus()"><i class="ti ti-refresh"></i> Refresh</button>
       </div>
     </div>
-
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:20px;padding-top:16px;border-top:1px solid #2d3148">
+    <div style="display:flex;gap:16px;margin-bottom:16px;flex-wrap:wrap;align-items:center">
+      <span style="font-size:12px;color:#64748b;display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:50%;background:#22c55e;display:inline-block"></span>Online</span>
+      <span style="font-size:12px;color:#64748b;display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:50%;background:#ef4444;display:inline-block"></span>Offline</span>
+      <span style="font-size:12px;color:#64748b;display:flex;align-items:center;gap:5px"><span style="width:12px;height:2px;background:#7c3aed;border-top:2px dashed #7c3aed;display:inline-block"></span>VPN tunnel</span>
+    </div>
+    <div style="overflow-x:auto">
+    <svg id="topo-svg" viewBox="0 0 900 520" xmlns="http://www.w3.org/2000/svg" style="width:100%;min-width:700px;font-family:-apple-system,sans-serif">
+      <text x="450" y="30" text-anchor="middle" font-size="10" fill="#374151">ISP CLOUD — OSPF Process 100 · Public 100.0.x.x</text>
+      <text x="450" y="160" text-anchor="middle" font-size="10" fill="#374151">CORE LAYER — OSPF Process 1 · IPsec VPN · NAT/PAT · ACL</text>
+      <text x="450" y="278" text-anchor="middle" font-size="10" fill="#374151">DISTRIBUTION LAYER — HSRP v2 · EtherChannel LACP · Rapid-PVST</text>
+      <text x="450" y="388" text-anchor="middle" font-size="10" fill="#374151">ACCESS LAYER — VLANs 10/20/30/99 · 802.1Q Trunking</text>
+      <line x1="170" y1="80" x2="270" y2="80" stroke="#2d3148" stroke-width="1.5"/>
+      <line x1="370" y1="80" x2="470" y2="80" stroke="#2d3148" stroke-width="1.5"/>
+      <line x1="570" y1="80" x2="670" y2="80" stroke="#2d3148" stroke-width="1.5"/>
+      <line x1="170" y1="100" x2="220" y2="178" stroke="#2d3148" stroke-width="1.5"/>
+      <line x1="270" y1="100" x2="380" y2="178" stroke="#2d3148" stroke-width="1.5"/>
+      <line x1="470" y1="100" x2="500" y2="178" stroke="#2d3148" stroke-width="1.5"/>
+      <line x1="670" y1="100" x2="650" y2="178" stroke="#2d3148" stroke-width="1.5"/>
+      <line x1="220" y1="198" x2="380" y2="198" stroke="#7c3aed" stroke-width="1.5" stroke-dasharray="6,3"/>
+      <line x1="500" y1="198" x2="650" y2="198" stroke="#7c3aed" stroke-width="1.5" stroke-dasharray="6,3"/>
+      <line x1="420" y1="198" x2="460" y2="198" stroke="#2d3148" stroke-width="2"/>
+      <line x1="380" y1="213" x2="180" y2="293" stroke="#2d3148" stroke-width="1.5"/>
+      <line x1="380" y1="213" x2="280" y2="293" stroke="#2d3148" stroke-width="1.5"/>
+      <line x1="380" y1="213" x2="380" y2="293" stroke="#2d3148" stroke-width="1.5"/>
+      <line x1="380" y1="213" x2="480" y2="293" stroke="#2d3148" stroke-width="1.5"/>
+      <line x1="500" y1="213" x2="380" y2="293" stroke="#2d3148" stroke-width="1.5"/>
+      <line x1="500" y1="213" x2="480" y2="293" stroke="#2d3148" stroke-width="1.5"/>
+      <line x1="500" y1="213" x2="580" y2="293" stroke="#2d3148" stroke-width="1.5"/>
+      <line x1="500" y1="213" x2="680" y2="293" stroke="#2d3148" stroke-width="1.5"/>
+      <line x1="220" y1="213" x2="180" y2="293" stroke="#2d3148" stroke-width="1.5"/>
+      <line x1="220" y1="213" x2="280" y2="293" stroke="#2d3148" stroke-width="1.5"/>
+      <line x1="650" y1="213" x2="580" y2="293" stroke="#2d3148" stroke-width="1.5"/>
+      <line x1="650" y1="213" x2="680" y2="293" stroke="#2d3148" stroke-width="1.5"/>
+      <line x1="200" y1="308" x2="260" y2="308" stroke="#2d3148" stroke-width="2"/>
+      <line x1="400" y1="308" x2="460" y2="308" stroke="#2d3148" stroke-width="2"/>
+      <line x1="600" y1="308" x2="660" y2="308" stroke="#2d3148" stroke-width="2"/>
+      <line x1="180" y1="323" x2="130" y2="398" stroke="#2d3148" stroke-width="1.5"/>
+      <line x1="280" y1="323" x2="130" y2="398" stroke="#2d3148" stroke-width="1.5"/>
+      <line x1="380" y1="323" x2="430" y2="398" stroke="#2d3148" stroke-width="1.5"/>
+      <line x1="480" y1="323" x2="430" y2="398" stroke="#2d3148" stroke-width="1.5"/>
+      <line x1="580" y1="323" x2="730" y2="398" stroke="#2d3148" stroke-width="1.5"/>
+      <line x1="680" y1="323" x2="730" y2="398" stroke="#2d3148" stroke-width="1.5"/>
+      <g id="node-ISP001" onclick="showDevice('ISP001','100.0.1.x','router','ISP')" style="cursor:pointer">
+        <rect x="120" y="55" width="90" height="40" rx="8" fill="#2e1065" stroke="#5b21b6" stroke-width="1.5"/>
+        <text x="165" y="72" text-anchor="middle" font-size="11" font-weight="700" fill="#a78bfa">ISP001</text>
+        <text x="165" y="86" text-anchor="middle" font-size="9" fill="#7c3aed">100.0.1.x</text>
+        <circle cx="205" cy="58" r="5" fill="#22c55e" id="status-ISP001" pointer-events="none"/>
+      </g>
+      <g id="node-ISP002" onclick="showDevice('ISP002','100.0.2.x','router','ISP')" style="cursor:pointer">
+        <rect x="220" y="55" width="90" height="40" rx="8" fill="#2e1065" stroke="#5b21b6" stroke-width="1.5"/>
+        <text x="265" y="72" text-anchor="middle" font-size="11" font-weight="700" fill="#a78bfa">ISP002</text>
+        <text x="265" y="86" text-anchor="middle" font-size="9" fill="#7c3aed">100.0.2.x</text>
+        <circle cx="305" cy="58" r="5" fill="#22c55e" id="status-ISP002" pointer-events="none"/>
+      </g>
+      <g id="node-ISP003" onclick="showDevice('ISP003','100.0.3.x','router','ISP')" style="cursor:pointer">
+        <rect x="420" y="55" width="90" height="40" rx="8" fill="#2e1065" stroke="#5b21b6" stroke-width="1.5"/>
+        <text x="465" y="72" text-anchor="middle" font-size="11" font-weight="700" fill="#a78bfa">ISP003</text>
+        <text x="465" y="86" text-anchor="middle" font-size="9" fill="#7c3aed">100.0.3.x</text>
+        <circle cx="505" cy="58" r="5" fill="#22c55e" id="status-ISP003" pointer-events="none"/>
+      </g>
+      <g id="node-ISP004" onclick="showDevice('ISP004','100.0.4.x','router','ISP')" style="cursor:pointer">
+        <rect x="620" y="55" width="90" height="40" rx="8" fill="#2e1065" stroke="#5b21b6" stroke-width="1.5"/>
+        <text x="665" y="72" text-anchor="middle" font-size="11" font-weight="700" fill="#a78bfa">ISP004</text>
+        <text x="665" y="86" text-anchor="middle" font-size="9" fill="#7c3aed">100.0.4.x</text>
+        <circle cx="705" cy="58" r="5" fill="#22c55e" id="status-ISP004" pointer-events="none"/>
+      </g>
+      <g id="node-A-CR1" onclick="showDevice('A-CR1','10.2.1.1','router','BranchA')" style="cursor:pointer">
+        <rect x="175" y="178" width="90" height="40" rx="8" fill="#1e3a5f" stroke="#1d4ed8" stroke-width="1.5" id="rect-A-CR1"/>
+        <text x="220" y="195" text-anchor="middle" font-size="11" font-weight="700" fill="#93c5fd">A-CR1</text>
+        <text x="220" y="209" text-anchor="middle" font-size="9" fill="#3b82f6">10.2.1.1</text>
+        <circle cx="260" cy="181" r="5" fill="#94a3b8" id="status-A-CR1" pointer-events="none"/>
+      </g>
+      <g id="node-HQ-CR1" onclick="showDevice('HQ-CR1','10.1.1.1','router','HQ')" style="cursor:pointer">
+        <rect x="345" y="178" width="90" height="40" rx="8" fill="#1e3a5f" stroke="#1d4ed8" stroke-width="2" id="rect-HQ-CR1"/>
+        <text x="390" y="195" text-anchor="middle" font-size="11" font-weight="700" fill="#93c5fd">HQ-CR1</text>
+        <text x="390" y="209" text-anchor="middle" font-size="9" fill="#3b82f6">10.1.1.1</text>
+        <circle cx="430" cy="181" r="5" fill="#94a3b8" id="status-HQ-CR1" pointer-events="none"/>
+      </g>
+      <g id="node-HQ-CR2" onclick="showDevice('HQ-CR2','10.1.1.17','router','HQ')" style="cursor:pointer">
+        <rect x="455" y="178" width="90" height="40" rx="8" fill="#1e3a5f" stroke="#1d4ed8" stroke-width="2" id="rect-HQ-CR2"/>
+        <text x="500" y="195" text-anchor="middle" font-size="11" font-weight="700" fill="#93c5fd">HQ-CR2</text>
+        <text x="500" y="209" text-anchor="middle" font-size="9" fill="#3b82f6">10.1.1.17</text>
+        <circle cx="540" cy="181" r="5" fill="#94a3b8" id="status-HQ-CR2" pointer-events="none"/>
+      </g>
+      <g id="node-B-CR1" onclick="showDevice('B-CR1','10.3.1.1','router','BranchB')" style="cursor:pointer">
+        <rect x="605" y="178" width="90" height="40" rx="8" fill="#1e3a5f" stroke="#1d4ed8" stroke-width="1.5" id="rect-B-CR1"/>
+        <text x="650" y="195" text-anchor="middle" font-size="11" font-weight="700" fill="#93c5fd">B-CR1</text>
+        <text x="650" y="209" text-anchor="middle" font-size="9" fill="#3b82f6">10.3.1.1</text>
+        <circle cx="690" cy="181" r="5" fill="#94a3b8" id="status-B-CR1" pointer-events="none"/>
+      </g>
+      <g id="node-A-DSW1" onclick="showDevice('A-DSW1','10.2.1.2','switch','BranchA')" style="cursor:pointer">
+        <rect x="140" y="293" width="80" height="36" rx="6" fill="#052e16" stroke="#15803d" stroke-width="1.5" id="rect-A-DSW1"/>
+        <text x="180" y="308" text-anchor="middle" font-size="10" font-weight="700" fill="#86efac">A-DSW1</text>
+        <text x="180" y="321" text-anchor="middle" font-size="8" fill="#16a34a">10.2.1.2</text>
+        <circle cx="215" cy="296" r="4" fill="#94a3b8" id="status-A-DSW1" pointer-events="none"/>
+      </g>
+      <g id="node-A-DSW2" onclick="showDevice('A-DSW2','10.2.1.6','switch','BranchA')" style="cursor:pointer">
+        <rect x="240" y="293" width="80" height="36" rx="6" fill="#052e16" stroke="#15803d" stroke-width="1.5" id="rect-A-DSW2"/>
+        <text x="280" y="308" text-anchor="middle" font-size="10" font-weight="700" fill="#86efac">A-DSW2</text>
+        <text x="280" y="321" text-anchor="middle" font-size="8" fill="#16a34a">10.2.1.6</text>
+        <circle cx="315" cy="296" r="4" fill="#94a3b8" id="status-A-DSW2" pointer-events="none"/>
+      </g>
+      <g id="node-HQ-DSW1" onclick="showDevice('HQ-DSW1','10.1.1.2','switch','HQ')" style="cursor:pointer">
+        <rect x="340" y="293" width="80" height="36" rx="6" fill="#052e16" stroke="#15803d" stroke-width="2" id="rect-HQ-DSW1"/>
+        <text x="380" y="308" text-anchor="middle" font-size="10" font-weight="700" fill="#86efac">HQ-DSW1</text>
+        <text x="380" y="321" text-anchor="middle" font-size="8" fill="#16a34a">10.1.1.2</text>
+        <circle cx="415" cy="296" r="4" fill="#94a3b8" id="status-HQ-DSW1" pointer-events="none"/>
+      </g>
+      <g id="node-HQ-DSW2" onclick="showDevice('HQ-DSW2','10.1.1.6','switch','HQ')" style="cursor:pointer">
+        <rect x="440" y="293" width="80" height="36" rx="6" fill="#052e16" stroke="#15803d" stroke-width="2" id="rect-HQ-DSW2"/>
+        <text x="480" y="308" text-anchor="middle" font-size="10" font-weight="700" fill="#86efac">HQ-DSW2</text>
+        <text x="480" y="321" text-anchor="middle" font-size="8" fill="#16a34a">10.1.1.6</text>
+        <circle cx="515" cy="296" r="4" fill="#94a3b8" id="status-HQ-DSW2" pointer-events="none"/>
+      </g>
+      <g id="node-B-DSW1" onclick="showDevice('B-DSW1','10.3.1.2','switch','BranchB')" style="cursor:pointer">
+        <rect x="540" y="293" width="80" height="36" rx="6" fill="#052e16" stroke="#15803d" stroke-width="1.5" id="rect-B-DSW1"/>
+        <text x="580" y="308" text-anchor="middle" font-size="10" font-weight="700" fill="#86efac">B-DSW1</text>
+        <text x="580" y="321" text-anchor="middle" font-size="8" fill="#16a34a">10.3.1.2</text>
+        <circle cx="615" cy="296" r="4" fill="#94a3b8" id="status-B-DSW1" pointer-events="none"/>
+      </g>
+      <g id="node-B-DSW2" onclick="showDevice('B-DSW2','10.3.1.6','switch','BranchB')" style="cursor:pointer">
+        <rect x="640" y="293" width="80" height="36" rx="6" fill="#052e16" stroke="#15803d" stroke-width="1.5" id="rect-B-DSW2"/>
+        <text x="680" y="308" text-anchor="middle" font-size="10" font-weight="700" fill="#86efac">B-DSW2</text>
+        <text x="680" y="321" text-anchor="middle" font-size="8" fill="#16a34a">10.3.1.6</text>
+        <circle cx="715" cy="296" r="4" fill="#94a3b8" id="status-B-DSW2" pointer-events="none"/>
+      </g>
+      <g onclick="showDevice('A-ASW1','10.2.10.11','switch','BranchA')" style="cursor:pointer">
+        <rect x="80" y="398" width="100" height="36" rx="6" fill="#1a1d27" stroke="#374151" stroke-width="1.5"/>
+        <text x="130" y="413" text-anchor="middle" font-size="10" font-weight="700" fill="#9ca3af">A-ASW1~4</text>
+        <text x="130" y="426" text-anchor="middle" font-size="8" fill="#4b5563">10.2.10.11~14</text>
+        <circle cx="175" cy="401" r="4" fill="#94a3b8" id="status-A-ASW1" pointer-events="none"/>
+      </g>
+      <g onclick="showDevice('HQ-ASW1','10.1.10.11','switch','HQ')" style="cursor:pointer">
+        <rect x="380" y="398" width="100" height="36" rx="6" fill="#1a1d27" stroke="#374151" stroke-width="2"/>
+        <text x="430" y="413" text-anchor="middle" font-size="10" font-weight="700" fill="#9ca3af">HQ-ASW1~6</text>
+        <text x="430" y="426" text-anchor="middle" font-size="8" fill="#4b5563">10.1.10.11~16</text>
+        <circle cx="475" cy="401" r="4" fill="#94a3b8" id="status-HQ-ASW1" pointer-events="none"/>
+      </g>
+      <g onclick="showDevice('B-ASW1','10.3.10.11','switch','BranchB')" style="cursor:pointer">
+        <rect x="680" y="398" width="100" height="36" rx="6" fill="#1a1d27" stroke="#374151" stroke-width="1.5"/>
+        <text x="730" y="413" text-anchor="middle" font-size="10" font-weight="700" fill="#9ca3af">B-ASW1~4</text>
+        <text x="730" y="426" text-anchor="middle" font-size="8" fill="#4b5563">10.3.10.11~14</text>
+        <circle cx="775" cy="401" r="4" fill="#94a3b8" id="status-B-ASW1" pointer-events="none"/>
+      </g>
+    </svg>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:16px;padding-top:16px;border-top:1px solid #2d3148">
       <div style="background:#0f1117;border-radius:8px;padding:12px;border:1px solid #2d3148">
         <div style="font-size:12px;color:#64748b;margin-bottom:4px">Routing protocol</div>
         <div style="font-size:13px;font-weight:600">OSPF Area 0</div>
@@ -385,111 +479,260 @@ tr:hover td { background: #1e2130; }
       </div>
     </div>
   </div>
+  <div id="topo-popup" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#1a1d27;border:1px solid #2d3148;border-radius:12px;padding:20px;z-index:999;min-width:300px;box-shadow:0 20px 60px rgba(0,0,0,.5)">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+      <div style="font-size:15px;font-weight:700" id="popup-name">Device</div>
+      <span onclick="document.getElementById('topo-popup').style.display='none';document.getElementById('topo-overlay').style.display='none'" style="cursor:pointer;color:#64748b;font-size:18px">x</span>
+    </div>
+    <div id="popup-body"></div>
+    <button class="btn btn-blue btn-sm" style="margin-top:12px;width:100%" onclick="goToDevice()">Open in Command Center</button>
+  </div>
+  <div id="topo-overlay" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:998;background:rgba(0,0,0,.5)" onclick="document.getElementById('topo-popup').style.display='none';document.getElementById('topo-overlay').style.display='none'"></div>
+  <script>
+var topoDevices={};
+var selectedDevice="";
+function loadTopoStatus(){
+  fetch("/api/devices").then(function(r){return r.json();}).then(function(devices){
+    topoDevices={};
+    devices.forEach(function(d){
+      topoDevices[d.hostname]=d;
+      var el=document.getElementById("status-"+d.hostname);
+      if(el){el.setAttribute("fill",d.status==="active"?"#22c55e":"#ef4444");}
+      var rect=document.getElementById("rect-"+d.hostname);
+      if(rect){rect.setAttribute("stroke",d.status==="active"?"#22c55e":"#ef4444");}
+    });
+  });
+}
+function showDevice(name,ip,type,site){
+  selectedDevice=name;
+  var d=topoDevices[name]||{};
+  var color=d.status==="active"?"#4ade80":"#f87171";
+  var statusLabel=d.status==="active"?"Online":"Offline";
+  document.getElementById("popup-name").textContent=name;
+  document.getElementById("popup-body").innerHTML=
+    "<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">"+
+    "<div style="background:#0f1117;border-radius:6px;padding:10px;border:1px solid #2d3148">"+
+    "<div style="font-size:11px;color:#64748b;margin-bottom:2px">Status</div>"+
+    "<div style="font-size:14px;font-weight:700;color:"+color+"">"+statusLabel+"</div></div>"+
+    "<div style="background:#0f1117;border-radius:6px;padding:10px;border:1px solid #2d3148">"+
+    "<div style="font-size:11px;color:#64748b;margin-bottom:2px">Health Score</div>"+
+    "<div style="font-size:14px;font-weight:700;color:#60a5fa">"+(d.health_score||"--")+"/100</div></div>"+
+    "<div style="background:#0f1117;border-radius:6px;padding:10px;border:1px solid #2d3148">"+
+    "<div style="font-size:11px;color:#64748b;margin-bottom:2px">IP Address</div>"+
+    "<div style="font-size:13px;font-family:monospace;color:#94a3b8">"+(d.ip_address||ip)+"</div></div>"+
+    "<div style="background:#0f1117;border-radius:6px;padding:10px;border:1px solid #2d3148">"+
+    "<div style="font-size:11px;color:#64748b;margin-bottom:2px">Site</div>"+
+    "<div style="font-size:13px;color:#94a3b8">"+(d.site||site)+"</div></div></div>"+
+    "<div style="background:#0f1117;border-radius:6px;padding:10px;border:1px solid #2d3148">"+
+    "<div style="font-size:11px;color:#64748b;margin-bottom:4px">Device Type</div>"+
+    "<div style="font-size:13px;color:#94a3b8">"+(d.device_type||type)+"</div></div>";
+  document.getElementById("topo-popup").style.display="block";
+  document.getElementById("topo-overlay").style.display="block";
+}
+function goToDevice(){
+  document.getElementById("topo-popup").style.display="none";
+  document.getElementById("topo-overlay").style.display="none";
+  switchPage("command");
+  setTimeout(function(){
+    document.querySelectorAll(".device-item").forEach(function(item){
+      var nameEl=item.querySelector(".device-name");
+      if(nameEl&&nameEl.textContent===selectedDevice){item.click();}
+    });
+  },500);
+}
+setInterval(loadTopoStatus,60000);
+  </script>
 </div>
 
-<!-- PATH ANALYSIS -->
 <div id="page-paths" class="page">
-  <div class="g2">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
     <div class="card">
-      <div class="card-title"><i class="ti ti-route"></i> Dijkstra's shortest path algorithm</div>
-      <p style="font-size:13px;color:#64748b;margin-bottom:14px;line-height:1.6">
-        Dijkstra's algorithm finds the minimum-cost path in a weighted graph. This network uses hop count as the cost metric.
-        The algorithm maintains a priority queue, always expanding the lowest-cost unvisited node until the destination is reached.
-      </p>
-
-      <p style="font-size:11px;color:#475569;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">Primary paths — leased lines</p>
-      <div class="path-card">
-        <div class="path-nodes">
-          <span class="path-node src">HQ-CR1</span><span class="path-arrow">→</span>
-          <span class="path-node dst">A-CR1</span>
+      <div class="card-title"><i class="ti ti-route"></i> Interactive Path Calculator</div>
+      <p style="font-size:13px;color:#64748b;margin-bottom:14px">Select source and destination to calculate shortest path using both algorithms in real-time.</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+        <div>
+          <p style="font-size:11px;color:#475569;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">Source</p>
+          <select id="src-node" style="width:100%;background:#0f1117;border:1px solid #2d3148;border-radius:6px;padding:8px;color:#e2e8f0;font-size:13px;outline:none">
+            <option value="HQ-CR1">HQ-CR1</option>
+            <option value="HQ-CR2">HQ-CR2</option>
+            <option value="HQ-DSW1">HQ-DSW1</option>
+            <option value="HQ-DSW2">HQ-DSW2</option>
+            <option value="HQ-DSW3">HQ-DSW3</option>
+            <option value="HQ-DSW4">HQ-DSW4</option>
+            <option value="A-CR1">A-CR1</option>
+            <option value="A-DSW1">A-DSW1</option>
+            <option value="A-DSW2">A-DSW2</option>
+            <option value="B-CR1">B-CR1</option>
+            <option value="B-DSW1">B-DSW1</option>
+            <option value="B-DSW2">B-DSW2</option>
+          </select>
         </div>
-        <div class="path-meta"><span>Leased line 10.0.12.0/30</span><span>Cost: 10 hops</span><span class="pbadge pb-primary">Primary</span></div>
-      </div>
-      <div class="path-card">
-        <div class="path-nodes">
-          <span class="path-node src">HQ-CR2</span><span class="path-arrow">→</span>
-          <span class="path-node dst">B-CR1</span>
+        <div>
+          <p style="font-size:11px;color:#475569;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">Destination</p>
+          <select id="dst-node" style="width:100%;background:#0f1117;border:1px solid #2d3148;border-radius:6px;padding:8px;color:#e2e8f0;font-size:13px;outline:none">
+            <option value="A-CR1">A-CR1</option>
+            <option value="B-CR1">B-CR1</option>
+            <option value="HQ-CR1">HQ-CR1</option>
+            <option value="HQ-CR2">HQ-CR2</option>
+            <option value="HQ-DSW1">HQ-DSW1</option>
+            <option value="HQ-DSW2">HQ-DSW2</option>
+            <option value="HQ-DSW3">HQ-DSW3</option>
+            <option value="HQ-DSW4">HQ-DSW4</option>
+            <option value="A-DSW1">A-DSW1</option>
+            <option value="A-DSW2">A-DSW2</option>
+            <option value="B-DSW1">B-DSW1</option>
+            <option value="B-DSW2">B-DSW2</option>
+          </select>
         </div>
-        <div class="path-meta"><span>Leased line 10.0.13.0/30</span><span>Cost: 10 hops</span><span class="pbadge pb-primary">Primary</span></div>
       </div>
-
-      <p style="font-size:11px;color:#475569;margin:12px 0 8px;text-transform:uppercase;letter-spacing:.5px">VPN failover paths</p>
-      <div class="path-card vpn">
-        <div class="path-nodes">
-          <span class="path-node src">HQ-CR1</span><span class="path-arrow">→</span>
-          <span class="path-node">ISP002</span><span class="path-arrow">→</span>
-          <span class="path-node">ISP001</span><span class="path-arrow">→</span>
-          <span class="path-node dst">A-CR1</span>
+      <button class="btn btn-blue" style="width:100%;margin-bottom:14px" onclick="runAlgorithms()">
+        <i class="ti ti-play"></i> Calculate Shortest Path
+      </button>
+      <div id="algo-results" style="display:none">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+          <div style="background:#0f1117;border:1px solid #1d4ed8;border-radius:8px;padding:12px">
+            <div style="font-size:11px;color:#60a5fa;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px;font-weight:600">Dijkstra</div>
+            <div style="font-size:22px;font-weight:700;color:#60a5fa" id="dk-cost">--</div>
+            <div style="font-size:11px;color:#475569;margin-top:2px">hops</div>
+            <div style="font-size:11px;color:#64748b;margin-top:6px">Iterations: <span id="dk-iter" style="color:#94a3b8">--</span></div>
+            <div style="font-size:11px;color:#64748b">Time: <span id="dk-time" style="color:#94a3b8">--</span>ms</div>
+            <div style="font-size:11px;color:#64748b">Complexity: <span style="color:#94a3b8">O((V+E)logV)</span></div>
+          </div>
+          <div style="background:#0f1117;border:1px solid #6d28d9;border-radius:8px;padding:12px">
+            <div style="font-size:11px;color:#a78bfa;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px;font-weight:600">Bellman-Ford</div>
+            <div style="font-size:22px;font-weight:700;color:#a78bfa" id="bf-cost">--</div>
+            <div style="font-size:11px;color:#475569;margin-top:2px">hops</div>
+            <div style="font-size:11px;color:#64748b;margin-top:6px">Iterations: <span id="bf-iter" style="color:#94a3b8">--</span></div>
+            <div style="font-size:11px;color:#64748b">Time: <span id="bf-time" style="color:#94a3b8">--</span>ms</div>
+            <div style="font-size:11px;color:#64748b">Complexity: <span style="color:#94a3b8">O(VxE)</span></div>
+          </div>
         </div>
-        <div class="path-meta"><span><i class="ti ti-lock" style="font-size:12px"></i> AES-256 IPsec tunnel</span><span>Cost: 30 hops</span><span class="pbadge pb-vpn">VPN Failover</span></div>
-      </div>
-      <div class="path-card vpn">
-        <div class="path-nodes">
-          <span class="path-node src">HQ-CR2</span><span class="path-arrow">→</span>
-          <span class="path-node">ISP003</span><span class="path-arrow">→</span>
-          <span class="path-node">ISP004</span><span class="path-arrow">→</span>
-          <span class="path-node dst">B-CR1</span>
+        <div style="background:#0f1117;border-radius:8px;padding:12px;margin-bottom:10px;border:1px solid #2d3148">
+          <div style="font-size:11px;color:#475569;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">Optimal Path</div>
+          <div id="path-visual" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap"></div>
         </div>
-        <div class="path-meta"><span><i class="ti ti-lock" style="font-size:12px"></i> AES-256 IPsec tunnel</span><span>Cost: 30 hops</span><span class="pbadge pb-vpn">VPN Failover</span></div>
-      </div>
-
-      <p style="font-size:11px;color:#475569;margin:12px 0 8px;text-transform:uppercase;letter-spacing:.5px">Inter-branch path (ACL policy — via HQ)</p>
-      <div class="path-card policy">
-        <div class="path-nodes">
-          <span class="path-node src">A-CR1</span><span class="path-arrow">→</span>
-          <span class="path-node">HQ-CR1</span><span class="path-arrow">→</span>
-          <span class="path-node">HQ-CR2</span><span class="path-arrow">→</span>
-          <span class="path-node dst">B-CR1</span>
+        <div id="match-indicator" style="background:#052e16;border:1px solid #166534;border-radius:8px;padding:10px;text-align:center;font-size:13px;color:#4ade80">
+          Both algorithms found the same optimal path
         </div>
-        <div class="path-meta"><span>Branches route through HQ by policy</span><span>Cost: 21 hops</span><span class="pbadge pb-policy">Policy Route</span></div>
       </div>
-
-      <p style="font-size:11px;color:#475569;margin:12px 0 8px;text-transform:uppercase;letter-spacing:.5px">Computed paths from database</p>
-      <div id="db-paths"><div class="loading"><i class="ti ti-loader"></i> Loading...</div></div>
     </div>
-
     <div class="card">
-      <div class="card-title"><i class="ti ti-code"></i> Algorithm trace — HQ-CR1 to A-CR1</div>
-      <div class="code-box">
-<span style="color:#475569">// Graph: nodes=routers, edges=links, weight=hops</span>
-<span style="color:#a78bfa">graph</span> = {
-  <span style="color:#4ade80">'HQ-CR1'</span>: {<span style="color:#4ade80">'HQ-CR2'</span>:<span style="color:#fbbf24">1</span>, <span style="color:#4ade80">'A-CR1'</span>:<span style="color:#fbbf24">10</span>, <span style="color:#4ade80">'HQ-DSW1'</span>:<span style="color:#fbbf24">1</span>},
-  <span style="color:#4ade80">'HQ-CR2'</span>: {<span style="color:#4ade80">'HQ-CR1'</span>:<span style="color:#fbbf24">1</span>, <span style="color:#4ade80">'B-CR1'</span>:<span style="color:#fbbf24">10</span>},
-  <span style="color:#4ade80">'A-CR1'</span>:  {<span style="color:#4ade80">'HQ-CR1'</span>:<span style="color:#fbbf24">10</span>, <span style="color:#4ade80">'A-DSW1'</span>:<span style="color:#fbbf24">1</span>},
-  <span style="color:#94a3b8">... 26 nodes total</span>
-}
-
-<span style="color:#475569">// Priority queue (min-heap)</span>
-<span style="color:#a78bfa">pq</span> = [(<span style="color:#fbbf24">0</span>, <span style="color:#4ade80">'HQ-CR1'</span>)]
-<span style="color:#a78bfa">dist</span> = {<span style="color:#4ade80">'HQ-CR1'</span>:<span style="color:#fbbf24">0</span>, all others: <span style="color:#fbbf24">∞</span>}
-
-<span style="color:#475569">// Iteration 1: pop HQ-CR1 (cost=0)</span>
-<span style="color:#60a5fa">→ relax HQ-CR2: dist=1  → push (1, HQ-CR2)</span>
-<span style="color:#60a5fa">→ relax A-CR1:  dist=10 → push (10, A-CR1)</span>
-<span style="color:#60a5fa">→ relax HQ-DSW1: dist=1 → push (1, HQ-DSW1)</span>
-
-<span style="color:#475569">// Iteration 2: pop HQ-CR2 (cost=1)</span>
-<span style="color:#60a5fa">→ relax B-CR1: dist=11 → push (11, B-CR1)</span>
-
-<span style="color:#475569">// Iteration 3: pop HQ-DSW1 (cost=1)</span>
-<span style="color:#60a5fa">→ already visited or higher cost, skip</span>
-
-<span style="color:#475569">// Iteration 4: pop A-CR1 (cost=10) ← DESTINATION!</span>
-<span style="color:#4ade80">✓ OPTIMAL PATH: HQ-CR1 → A-CR1</span>
-<span style="color:#4ade80">✓ MINIMUM COST: 10 hops</span>
-      </div>
-
-      <div style="margin-top:14px">
-        <p style="font-size:11px;color:#475569;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">Path cost comparison</p>
-        <div class="chart-wrap">
-          <canvas id="pathChart" role="img" aria-label="Path cost comparison chart">Path costs.</canvas>
+      <div class="card-title"><i class="ti ti-code"></i> Step-by-step Algorithm Trace</div>
+      <div id="algo-trace" style="background:#000;border-radius:8px;padding:14px;font-family:monospace;font-size:12px;min-height:300px;max-height:460px;overflow-y:auto;line-height:1.8;color:#475569;white-space:pre-wrap">Select source and destination, then click Calculate...</div>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+    <div class="card">
+      <div class="card-title"><i class="ti ti-chart-bar"></i> Algorithm Comparison</div>
+      <div class="chart-wrap"><canvas id="algoCompareChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><i class="ti ti-info-circle"></i> Why Two Algorithms?</div>
+      <div style="font-size:13px;color:#94a3b8;line-height:1.8">
+        <div style="margin-bottom:10px;padding:10px;background:#0f1117;border-radius:8px;border-left:3px solid #3b82f6">
+          <div style="font-weight:600;color:#60a5fa;margin-bottom:4px">Dijkstra Algorithm</div>
+          Uses a min-heap priority queue. Always expands the lowest-cost node first. Cannot handle negative weights. Optimal for this network with complexity O((V+E)logV).
+        </div>
+        <div style="margin-bottom:10px;padding:10px;background:#0f1117;border-radius:8px;border-left:3px solid #7c3aed">
+          <div style="font-weight:600;color:#a78bfa;margin-bottom:4px">Bellman-Ford Algorithm</div>
+          Relaxes all edges V-1 times. Slower but handles negative weights and detects negative cycles. Used to validate Dijkstra results with complexity O(VxE).
+        </div>
+        <div style="padding:10px;background:#052e16;border-radius:8px;border-left:3px solid #22c55e">
+          <div style="font-weight:600;color:#4ade80;margin-bottom:4px">Conclusion</div>
+          Both algorithms produce identical results. Dijkstra is preferred for production due to better time complexity.
         </div>
       </div>
     </div>
   </div>
+  <div class="card">
+    <div class="card-title"><i class="ti ti-network"></i> Network Path Reference</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+      <div style="background:#0f1117;border-radius:8px;padding:12px;border:1px solid #2d3148;border-left:3px solid #3b82f6">
+        <div style="font-size:11px;color:#60a5fa;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px;font-weight:600">Primary - Leased Lines</div>
+        <div style="font-size:12px;font-family:monospace;color:#94a3b8;line-height:2">HQ-CR1 to A-CR1 &nbsp;<span style="color:#4ade80">10 hops</span><br>HQ-CR2 to B-CR1 &nbsp;<span style="color:#4ade80">10 hops</span></div>
+      </div>
+      <div style="background:#0f1117;border-radius:8px;padding:12px;border:1px solid #2d3148;border-left:3px solid #7c3aed">
+        <div style="font-size:11px;color:#a78bfa;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px;font-weight:600">Failover - IPsec VPN</div>
+        <div style="font-size:12px;font-family:monospace;color:#94a3b8;line-height:2">HQ-CR1 via ISP to A-CR1 &nbsp;<span style="color:#f87171">30 hops</span><br>HQ-CR2 via ISP to B-CR1 &nbsp;<span style="color:#f87171">30 hops</span></div>
+      </div>
+      <div style="background:#0f1117;border-radius:8px;padding:12px;border:1px solid #2d3148;border-left:3px solid #f59e0b">
+        <div style="font-size:11px;color:#fbbf24;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px;font-weight:600">Policy - Inter-Branch</div>
+        <div style="font-size:12px;font-family:monospace;color:#94a3b8;line-height:2">A-CR1 to HQ-CR1 to HQ-CR2 to B-CR1<br><span style="color:#fbbf24">21 hops via HQ by ACL policy</span></div>
+      </div>
+    </div>
+  </div>
+  <script>
+var GRAPH={'HQ-CR1':{'HQ-CR2':1,'A-CR1':10,'HQ-DSW1':1,'HQ-DSW2':1,'HQ-DSW3':1,'HQ-DSW4':1},'HQ-CR2':{'HQ-CR1':1,'B-CR1':10,'HQ-DSW1':1,'HQ-DSW2':1,'HQ-DSW3':1,'HQ-DSW4':1},'A-CR1':{'HQ-CR1':10,'A-DSW1':1,'A-DSW2':1},'B-CR1':{'HQ-CR2':10,'B-DSW1':1,'B-DSW2':1},'HQ-DSW1':{'HQ-CR1':1,'HQ-CR2':1,'HQ-DSW2':1},'HQ-DSW2':{'HQ-CR1':1,'HQ-CR2':1,'HQ-DSW1':1},'HQ-DSW3':{'HQ-CR1':1,'HQ-CR2':1,'HQ-DSW4':1},'HQ-DSW4':{'HQ-CR1':1,'HQ-CR2':1,'HQ-DSW3':1},'A-DSW1':{'A-CR1':1,'A-DSW2':1},'A-DSW2':{'A-CR1':1,'A-DSW1':1},'B-DSW1':{'B-CR1':1,'B-DSW2':1},'B-DSW2':{'B-CR1':1,'B-DSW1':1}};
+var NODES=Object.keys(GRAPH);
+var algoChart=null;
+function dijkstra(src,dst){
+  var t0=performance.now(),dist={},prev={},visited={},steps=[];
+  NODES.forEach(function(n){dist[n]=Infinity;prev[n]=null;});
+  dist[src]=0;var pq=[[0,src]],iterations=0;
+  steps.push('// Graph: '+NODES.length+' nodes, Initialize dist['+src+']=0');
+  steps.push('// Priority Queue: [(0, '+src+')]');steps.push('');
+  while(pq.length>0){
+    pq.sort(function(a,b){return a[0]-b[0];});
+    var curr=pq.shift(),cost=curr[0],node=curr[1];
+    if(visited[node])continue;
+    visited[node]=true;iterations++;
+    steps.push('Iteration '+iterations+': pop '+node+' (cost='+cost+')');
+    if(node===dst){steps.push('>> DESTINATION REACHED!');break;}
+    var neighbors=GRAPH[node]||{};
+    Object.keys(neighbors).forEach(function(nb){
+      var w=neighbors[nb],newCost=cost+w;
+      if(newCost<dist[nb]){dist[nb]=newCost;prev[nb]=node;pq.push([newCost,nb]);steps.push('  relax '+nb+': dist='+newCost+' push('+newCost+','+nb+')');}
+      else{steps.push('  skip '+nb+': '+dist[nb]+' <= '+newCost);}
+    });
+  }
+  var path=[],node=dst;while(node){path.unshift(node);node=prev[node];}
+  var t1=performance.now();
+  steps.push('');steps.push('OPTIMAL PATH: '+path.join(' -> '));steps.push('MINIMUM COST: '+dist[dst]+' hops');
+  return{path:path,cost:dist[dst],iterations:iterations,time:(t1-t0).toFixed(2),steps:steps};
+}
+function bellmanFord(src,dst){
+  var t0=performance.now(),dist={},prev={};
+  NODES.forEach(function(n){dist[n]=Infinity;prev[n]=null;});
+  dist[src]=0;var edges=[];
+  NODES.forEach(function(u){Object.keys(GRAPH[u]||{}).forEach(function(v){edges.push([u,v,GRAPH[u][v]]);});});
+  var iterations=0;
+  for(var i=0;i<NODES.length-1;i++){
+    iterations++;var updated=false;
+    edges.forEach(function(e){var u=e[0],v=e[1],w=e[2];if(dist[u]!==Infinity&&dist[u]+w<dist[v]){dist[v]=dist[u]+w;prev[v]=u;updated=true;}});
+    if(!updated)break;
+  }
+  var path=[],node=dst;while(node){path.unshift(node);node=prev[node];}
+  return{path:path,cost:dist[dst],iterations:iterations,time:(performance.now()-t0).toFixed(2)};
+}
+function runAlgorithms(){
+  var src=document.getElementById('src-node').value,dst=document.getElementById('dst-node').value;
+  if(src===dst){alert('Source and destination must be different!');return;}
+  var dk=dijkstra(src,dst),bf=bellmanFord(src,dst);
+  document.getElementById('dk-cost').textContent=dk.cost;
+  document.getElementById('dk-iter').textContent=dk.iterations;
+  document.getElementById('dk-time').textContent=dk.time;
+  document.getElementById('bf-cost').textContent=bf.cost;
+  document.getElementById('bf-iter').textContent=bf.iterations;
+  document.getElementById('bf-time').textContent=bf.time;
+  var pv=document.getElementById('path-visual');pv.innerHTML='';
+  dk.path.forEach(function(node,i){
+    var cls=i===0?'color:#4ade80;border-color:#22c55e':i===dk.path.length-1?'color:#f87171;border-color:#ef4444':'color:#94a3b8;border-color:#2d3148';
+    pv.innerHTML+='<span style="background:#1a1d27;border:1px solid;border-radius:6px;padding:4px 10px;font-size:12px;font-family:monospace;font-weight:600;'+cls+'">'+node+'</span>';
+    if(i<dk.path.length-1)pv.innerHTML+='<span style="color:#475569;font-size:16px"> -> </span>';
+  });
+  var match=dk.path.join(',')===bf.path.join(','),mi=document.getElementById('match-indicator');
+  mi.style.background=match?'#052e16':'#450a0a';mi.style.borderColor=match?'#166534':'#991b1b';mi.style.color=match?'#4ade80':'#f87171';
+  mi.textContent=match?'Both algorithms found the same optimal path - results validated!':'Algorithms found different paths';
+  document.getElementById('algo-trace').textContent=dk.steps.join('\n');
+  document.getElementById('algo-results').style.display='block';
+  if(algoChart)algoChart.destroy();
+  algoChart=new Chart(document.getElementById('algoCompareChart'),{type:'bar',data:{labels:['Cost (hops)','Iterations','Time (ms x10)'],datasets:[{label:'Dijkstra',data:[dk.cost,dk.iterations,dk.time*10],backgroundColor:'#2563eb',borderRadius:6,borderSkipped:false},{label:'Bellman-Ford',data:[bf.cost,bf.iterations,bf.time*10],backgroundColor:'#7c3aed',borderRadius:6,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:'#94a3b8',font:{size:12},padding:16}}},scales:{y:{ticks:{color:'#475569',font:{size:11}},grid:{color:'rgba(255,255,255,0.04)'}},x:{ticks:{color:'#94a3b8'},grid:{display:false}}}}});
+  fetch('/api/save_path',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({src:src,dst:dst,path:dk.path.join('->'),cost:dk.cost,dk_iter:dk.iterations,bf_iter:bf.iterations})});
+}
+  </script>
 </div>
 
-<!-- MONITORING -->
+
 <div id="page-monitoring" class="page">
   <div class="g2" style="margin-bottom:16px">
     <div class="card">
@@ -586,6 +829,7 @@ function switchPage(name) {
   var tabs = document.querySelectorAll('.tab');
   tabs.forEach(function(t) { if (t.getAttribute('data-page') === name) t.classList.add('active'); });
   if (name === 'monitoring') { loadAlerts(); loadCharts(); }
+  if (name === 'topology') { loadTopoStatus(); }
   if (name === 'inventory') loadInventory();
   if (name === 'backup') loadBackups();
   if (name === 'paths') loadPaths();
@@ -897,7 +1141,12 @@ loadOverviewAlerts();
 loadCmdHistory();
 setInterval(loadStats, 30000);
 setInterval(loadSiteSummary, 60000);
-setInterval(loadOverviewAlerts, 60000);
+setInterval(loadOverviewAlerts, 30000);
+setInterval(function() {
+  if (document.getElementById('page-monitoring').classList.contains('active')) {
+    loadAlerts();
+  }
+}, 30000);
 </script>
 </body>
 </html>
