@@ -516,7 +516,7 @@ tr:hover td { background: #1e2130; }
     <div class="card">
       <div class="card-header">
         <div class="card-title" style="margin:0"><i class="ti ti-database"></i> Configuration backups</div>
-        <button class="btn btn-blue btn-sm" onclick="alert('Run: python3 ~/automation/backup_configs.py\n\nRequires PNetLab connection.')">
+        <button class="btn btn-blue btn-sm" onclick="fetch('/api/cloud_backup', {method:'POST'}).then(r=>r.json()).then(d=>alert(d.message))">
           <i class="ti ti-download"></i> Run backup
         </button>
       </div>
