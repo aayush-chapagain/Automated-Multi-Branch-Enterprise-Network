@@ -132,5 +132,16 @@ def index():
 
 HTML = open('/home/netadmin/automation/index.html').read()
 
+
+@app.route('/api/cloud_backup', methods=['POST'])
+def api_cloud_backup():
+    try:
+        import cloud_backup
+        cloud_backup.backup_database()
+        cloud_backup.git_push(f"chore: manual backup from dashboard")
+        return jsonify(success=True, message='✅ Backup pushed to GitHub successfully!')
+    except Exception as e:
+        return jsonify(success=False, message=f'❌ Backup failed: {str(e)}')
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=False)
