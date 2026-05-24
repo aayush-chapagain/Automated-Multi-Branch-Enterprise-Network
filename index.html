@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Enterprise NOC Dashboard</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f1117; color: #e2e8f0; min-height: 100vh; }
+
+/* NAV */
+nav { background: #1a1d27; border-bottom: 1px solid #2d3148; padding: 0 24px; display: flex; align-items: center; position: sticky; top: 0; z-index: 100; overflow-x: auto; }
+.brand { font-size: 15px; font-weight: 700; color: #fff; padding: 14px 0; margin-right: 24px; display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+.livedot { width: 8px; height: 8px; border-radius: 50%; background: #22c55e; animation: blink 2s infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+.tab { padding: 14px 14px; font-size: 13px; color: #94a3b8; cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; user-select: none; }
+.tab:hover { color: #e2e8f0; background: rgba(255,255,255,0.03); }
+.tab.active { color: #60a5fa; border-bottom-color: #3b82f6; }
+.nav-right { margin-left: auto; display: flex; align-items: center; gap: 10px; font-size: 12px; color: #64748b; white-space: nowrap; padding-left: 16px; }
+.live-badge { background: #052e16; color: #4ade80; font-size: 11px; padding: 3px 10px; border-radius: 99px; font-weight: 600; border: 1px solid #166534; }
+
+/* PAGES */
+.page { display: none; padding: 20px 24px; }
+.page.active { display: block; }
+
+/* CARDS */
+.card { background: #1a1d27; border: 1px solid #2d3148; border-radius: 10px; padding: 18px; }
+.card-title { font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px; margin-bottom: 14px; color: #e2e8f0; }
+.card-title i { font-size: 15px; color: #64748b; }
+.card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+
+/* GRIDS */
+.g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+.g3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+.g6 { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; margin-bottom: 20px; }
+
+/* METRIC CARDS */
+.metric { background: #1a1d27; border: 1px solid #2d3148; border-radius: 10px; padding: 14px 16px; }
+.metric .label { font-size: 11px; color: #64748b; margin-bottom: 6px; text-transform: uppercase; letter-spacing: .5px; }
+.metric .value { font-size: 28px; font-weight: 700; }
+.metric .sub { font-size: 11px; color: #475569; margin-top: 3px; }
+
+/* SITE CARDS */
+.site-card { background: #1a1d27; border: 1px solid #2d3148; border-radius: 10px; padding: 16px; }
+.site-name { font-size: 13px; font-weight: 600; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+.site-score { font-size: 28px; font-weight: 700; margin-bottom: 6px; }
+.progress-bg { background: #0f1117; border-radius: 4px; height: 6px; overflow: hidden; margin-bottom: 8px; }
+.progress-fill { height: 6px; border-radius: 4px; transition: width .5s; }
+.site-meta { font-size: 11px; color: #64748b; }
+
+/* COLORS */
+.c-blue { color: #60a5fa; }
+.c-green { color: #4ade80; }
+.c-red { color: #f87171; }
+.c-amber { color: #fbbf24; }
+.c-purple { color: #a78bfa; }
+.c-teal { color: #2dd4bf; }
+
+/* PILLS */
+.pill { display: inline-block; padding: 2px 9px; border-radius: 99px; font-size: 11px; font-weight: 600; }
+.pill-router { background: #1e3a5f; color: #60a5fa; }
+.pill-switch { background: #052e16; color: #4ade80; }
+.pill-HQ { background: #1e3a5f; color: #60a5fa; }
+.pill-BranchA { background: #052e16; color: #4ade80; }
+.pill-BranchB { background: #2e1065; color: #a78bfa; }
+.pill-active, .pill-online { background: #052e16; color: #4ade80; }
+.pill-offline { background: #450a0a; color: #f87171; }
+.pill-critical { background: #450a0a; color: #f87171; }
+.pill-warning { background: #431407; color: #fbbf24; }
+.pill-info { background: #1e3a5f; color: #60a5fa; }
+.pill-down { background: #450a0a; color: #f87171; }
+.pill-healthy { background: #052e16; color: #4ade80; }
+.pill-degraded { background: #431407; color: #fbbf24; }
+
+/* TABLE */
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th { font-size: 11px; font-weight: 600; color: #475569; text-align: left; padding: 8px 10px; border-bottom: 1px solid #2d3148; text-transform: uppercase; letter-spacing: .5px; }
+td { padding: 9px 10px; border-bottom: 1px solid #1e2130; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: #1e2130; }
+
+/* ALERT CARDS */
+.alert-card { background: #0f1117; border-radius: 8px; padding: 12px 14px; margin-bottom: 8px; display: flex; gap: 12px; border: 1px solid #2d3148; }
+.alert-card.critical { border-left: 3px solid #ef4444; }
+.alert-card.warning { border-left: 3px solid #f59e0b; }
+.alert-card.info { border-left: 3px solid #3b82f6; }
+.alert-icon { font-size: 18px; flex-shrink: 0; margin-top: 2px; }
+.alert-icon.critical { color: #f87171; }
+.alert-icon.warning { color: #fbbf24; }
+.alert-icon.info { color: #60a5fa; }
+.alert-title { font-size: 13px; font-weight: 600; margin-bottom: 3px; }
+.alert-desc { font-size: 12px; color: #64748b; line-height: 1.5; }
+.alert-footer { display: flex; gap: 10px; margin-top: 6px; font-size: 11px; color: #475569; align-items: center; flex-wrap: wrap; }
+
+/* COMMAND CENTER */
+.cmd-layout { display: grid; grid-template-columns: 260px 1fr; gap: 16px; }
+.device-list { background: #0f1117; border-radius: 8px; max-height: 500px; overflow-y: auto; border: 1px solid #2d3148; }
+.device-item { padding: 10px 12px; cursor: pointer; border-bottom: 1px solid #1a1d27; font-size: 13px; display: flex; align-items: center; gap: 10px; transition: background .15s; }
+.device-item:hover { background: #1a1d27; }
+.device-item.selected { background: #1e3a5f; border-left: 3px solid #3b82f6; }
+.device-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.dot-online { background: #22c55e; }
+.dot-offline { background: #ef4444; }
+.device-name { font-weight: 600; }
+.device-ip { font-size: 11px; color: #475569; font-family: monospace; }
+.cmd-panel { display: flex; flex-direction: column; gap: 12px; }
+.info-bar { background: #0f1117; border: 1px solid #2d3148; border-radius: 8px; padding: 10px 14px; font-size: 13px; color: #64748b; }
+.quick-cmds { display: flex; flex-wrap: wrap; gap: 6px; }
+.qcmd { padding: 5px 11px; background: #0f1117; border: 1px solid #2d3148; border-radius: 6px; font-size: 12px; font-family: monospace; cursor: pointer; color: #94a3b8; transition: all .15s; }
+.qcmd:hover { background: #2d3148; color: #e2e8f0; }
+.cmd-row { display: flex; gap: 8px; }
+.cmd-input { flex: 1; background: #0f1117; border: 1px solid #2d3148; border-radius: 8px; padding: 10px 14px; color: #e2e8f0; font-family: monospace; font-size: 13px; outline: none; }
+.cmd-input:focus { border-color: #3b82f6; }
+.terminal { background: #000; border-radius: 8px; padding: 14px; font-family: monospace; font-size: 12px; color: #4ade80; min-height: 200px; max-height: 380px; overflow-y: auto; border: 1px solid #1a3a1a; white-space: pre-wrap; word-break: break-all; line-height: 1.6; }
+.history-box { background: #0f1117; border-radius: 8px; padding: 10px; max-height: 160px; overflow-y: auto; border: 1px solid #2d3148; }
+.history-item { padding: 5px 0; border-bottom: 1px solid #1a1d27; font-size: 12px; font-family: monospace; display: flex; gap: 10px; }
+.history-item:last-child { border-bottom: none; }
+.h-ts { color: #475569; flex-shrink: 0; }
+.h-dev { color: #60a5fa; flex-shrink: 0; min-width: 80px; }
+.h-cmd { color: #94a3b8; }
+
+/* BUTTONS */
+.btn { padding: 9px 16px; border-radius: 8px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; transition: all .15s; }
+.btn-blue { background: #2563eb; color: #fff; }
+.btn-blue:hover { background: #1d4ed8; }
+.btn-red { background: #b91c1c; color: #fff; }
+.btn-red:hover { background: #991b1b; }
+.btn-sm { padding: 5px 12px; font-size: 12px; }
+.btn-outline { background: #1a1d27; border: 1px solid #2d3148; color: #94a3b8; }
+.btn-outline:hover { background: #2d3148; color: #e2e8f0; }
+
+/* PATH CARDS */
+.path-card { background: #0f1117; border-radius: 8px; padding: 14px; margin-bottom: 10px; border-left: 3px solid #3b82f6; border: 1px solid #2d3148; border-left: 3px solid #3b82f6; }
+.path-card.vpn { border-left-color: #a78bfa; }
+.path-card.policy { border-left-color: #fbbf24; }
+.path-nodes { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
+.path-node { background: #1a1d27; border: 1px solid #2d3148; border-radius: 6px; padding: 3px 9px; font-size: 12px; font-family: monospace; font-weight: 600; }
+.path-node.src { border-color: #22c55e; color: #4ade80; }
+.path-node.dst { border-color: #f87171; color: #f87171; }
+.path-arrow { color: #475569; font-size: 14px; }
+.path-meta { display: flex; gap: 12px; font-size: 12px; color: #64748b; align-items: center; flex-wrap: wrap; }
+.pbadge { padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+.pb-primary { background: #1e3a5f; color: #60a5fa; }
+.pb-vpn { background: #2e1065; color: #a78bfa; }
+.pb-policy { background: #431407; color: #fbbf24; }
+
+/* TOPOLOGY */
+.topo { display: flex; flex-direction: column; align-items: center; }
+.topo-row { display: flex; gap: 8px; justify-content: center; align-items: center; margin: 4px 0; }
+.topo-node { border-radius: 8px; padding: 8px 12px; font-size: 11px; font-weight: 700; text-align: center; min-width: 70px; border: 1.5px solid transparent; }
+.tn-isp { border-color: #5b21b6; color: #a78bfa; background: #2e1065; }
+.tn-core { border-color: #1d4ed8; color: #93c5fd; background: #1e3a5f; }
+.tn-dist { border-color: #15803d; color: #86efac; background: #052e16; }
+.tn-acc { border-color: #374151; color: #9ca3af; background: #1a1d27; }
+.topo-vline { width: 1px; height: 14px; background: #2d3148; margin: 0 auto; }
+.topo-hline { height: 1px; width: 10px; background: #2d3148; }
+.topo-legend { display: flex; gap: 14px; margin-top: 14px; font-size: 11px; color: #64748b; flex-wrap: wrap; justify-content: center; }
+.legend-dot { width: 10px; height: 10px; border-radius: 2px; display: inline-block; margin-right: 4px; }
+
+/* CODE BOX */
+.code-box { background: #000; border-radius: 8px; padding: 14px; font-family: monospace; font-size: 12px; color: #e2e8f0; line-height: 1.8; }
+
+/* SEARCH */
+.search-input { background: #0f1117; border: 1px solid #2d3148; border-radius: 6px; padding: 6px 12px; color: #e2e8f0; font-size: 13px; outline: none; width: 220px; }
+.search-input:focus { border-color: #3b82f6; }
+
+/* CHART */
+.chart-wrap { position: relative; height: 200px; }
+
+/* FOOTER */
+.footer { text-align: center; font-size: 12px; color: #374151; padding: 16px; border-top: 1px solid #1a1d27; margin-top: 16px; }
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: #0f1117; }
+::-webkit-scrollbar-thumb { background: #2d3148; border-radius: 2px; }
+
+/* LOADING */
+.loading { text-align: center; padding: 40px; color: #475569; }
+.loading i { font-size: 32px; display: block; margin-bottom: 10px; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="brand"><span class="livedot"></span> Enterprise NOC</div>
+  <span class="tab active" data-page="overview"><i class="ti ti-dashboard"></i> Overview</span>
+  <span class="tab" data-page="command"><i class="ti ti-terminal-2"></i> Command Center</span>
+  <span class="tab" data-page="topology"><i class="ti ti-topology-star-3"></i> Topology</span>
+  <span class="tab" data-page="paths"><i class="ti ti-route"></i> Path Analysis</span>
+  <span class="tab" data-page="monitoring"><i class="ti ti-activity"></i> Monitoring</span>
+  <span class="tab" data-page="backup"><i class="ti ti-database"></i> Config Backup</span>
+  <span class="tab" data-page="inventory"><i class="ti ti-list"></i> Inventory</span>
+  <div class="nav-right">
+    <span class="live-badge">&#9679; Live</span>
+    <span id="clock"><i class="ti ti-clock"></i> --:--:--</span>
+  </div>
+</nav>
+
+<!-- OVERVIEW -->
+<div id="page-overview" class="page active">
+  <div class="g6" id="metrics-grid">
+    <div class="metric"><div class="label">Total devices</div><div class="value c-blue" id="m-total">--</div><div class="sub">3 sites</div></div>
+    <div class="metric"><div class="label">Online</div><div class="value c-green" id="m-online">--</div><div class="sub" id="m-avail">--% available</div></div>
+    <div class="metric"><div class="label">Offline</div><div class="value c-red" id="m-offline">--</div><div class="sub">Unreachable</div></div>
+    <div class="metric"><div class="label">Active alerts</div><div class="value c-amber" id="m-alerts">--</div><div class="sub">Needs attention</div></div>
+    <div class="metric"><div class="label">Config backups</div><div class="value c-purple" id="m-backups">--</div><div class="sub">Stored versions</div></div>
+    <div class="metric"><div class="label">Network SLA</div><div class="value c-teal" id="m-sla">--%</div><div class="sub">Monthly uptime</div></div>
+  </div>
+
+  <div class="g3" id="site-grid">
+    <div class="loading"><i class="ti ti-loader"></i> Loading sites...</div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-title"><i class="ti ti-chart-bar"></i> Site health scores</div>
+      <div class="chart-wrap">
+        <canvas id="healthChart" role="img" aria-label="Site health scores bar chart">Site health scores.</canvas>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title" style="margin:0"><i class="ti ti-bell"></i> Recent alerts</div>
+        <span class="c-blue" style="font-size:12px;cursor:pointer" onclick="switchPage('monitoring')">View all</span>
+      </div>
+      <div id="overview-alerts"><div class="loading"><i class="ti ti-loader"></i> Loading...</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- COMMAND CENTER -->
+<div id="page-command" class="page">
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title" style="margin:0"><i class="ti ti-terminal-2"></i> Network Command Center</div>
+      <span style="font-size:12px;color:#64748b">Execute IOS commands on any device</span>
+    </div>
+    <div class="cmd-layout">
+      <div>
+        <p style="font-size:12px;color:#64748b;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">Select device</p>
+        <div class="device-list" id="device-list">
+          <div class="loading"><i class="ti ti-loader"></i> Loading...</div>
+        </div>
+      </div>
+      <div class="cmd-panel">
+        <div class="info-bar">
+          <i class="ti ti-device-desktop"></i>
+          Selected: <strong id="sel-name" style="color:#60a5fa">None</strong>
+          &nbsp;·&nbsp;
+          <span id="sel-ip" style="font-family:monospace;color:#94a3b8">Select a device from the list</span>
+        </div>
+        <div>
+          <p style="font-size:12px;color:#64748b;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">Quick commands</p>
+          <div class="quick-cmds">
+            <span class="qcmd" onclick="setCmd('show ip route')">show ip route</span>
+            <span class="qcmd" onclick="setCmd('show ip ospf neighbor')">show ospf neighbor</span>
+            <span class="qcmd" onclick="setCmd('show interfaces brief')">show int brief</span>
+            <span class="qcmd" onclick="setCmd('show ip nat translations')">show NAT table</span>
+            <span class="qcmd" onclick="setCmd('show crypto isakmp sa')">show VPN SA</span>
+            <span class="qcmd" onclick="setCmd('show crypto ipsec sa')">show IPsec SA</span>
+            <span class="qcmd" onclick="setCmd('show version')">show version</span>
+            <span class="qcmd" onclick="setCmd('show running-config')">show run</span>
+            <span class="qcmd" onclick="setCmd('show ip access-lists')">show ACLs</span>
+            <span class="qcmd" onclick="setCmd('show vlan brief')">show VLANs</span>
+            <span class="qcmd" onclick="setCmd('show spanning-tree')">show STP</span>
+            <span class="qcmd" onclick="setCmd('show standby brief')">show HSRP</span>
+            <span class="qcmd" onclick="setCmd('show ip dhcp binding')">show DHCP</span>
+            <span class="qcmd" onclick="setCmd('show etherchannel summary')">show EtherChannel</span>
+            <span class="qcmd" onclick="setCmd('show ip ospf interface brief')">show OSPF int</span>
+            <span class="qcmd" onclick="setCmd('show ip bgp summary')">show BGP</span>
+          </div>
+        </div>
+        <div class="cmd-row">
+          <span style="font-family:monospace;color:#4ade80;padding:0 8px;line-height:40px">&gt;</span>
+          <input type="text" class="cmd-input" id="cmd-input" placeholder="Enter any IOS command..." onkeypress="if(event.key==='Enter') execCmd()">
+          <button class="btn btn-blue" onclick="execCmd()"><i class="ti ti-send"></i> Execute</button>
+          <button class="btn btn-red btn-sm" onclick="clearTerminal()"><i class="ti ti-trash"></i></button>
+        </div>
+        <div>
+          <p style="font-size:12px;color:#64748b;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">Terminal output</p>
+          <div class="terminal" id="terminal">
+<span style="color:#475569">── Enterprise NOC Terminal v1.0 ─────────────────────────────
+ Select a device from the list on the left.
+ Click a quick command or type your own IOS command.
+ Press Enter or click Execute to run.
+──────────────────────────────────────────────────────────</span>
+          </div>
+        </div>
+        <div>
+          <p style="font-size:12px;color:#64748b;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">Command history</p>
+          <div class="history-box" id="cmd-history">
+            <div style="color:#374151;font-size:12px;padding:8px 0">No commands yet</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOPOLOGY -->
+<div id="page-topology" class="page">
+  <div class="card">
+    <div class="card-title"><i class="ti ti-topology-star-3"></i> Network topology — 3-tier hierarchical architecture</div>
+    <div class="topo">
+      <p style="font-size:11px;color:#475569;margin-bottom:10px;text-align:center">ISP CLOUD — OSPF Process 100 · Public 100.0.x.x addressing</p>
+      <div class="topo-row">
+        <div class="topo-node tn-isp">ISP001<br><span style="font-size:9px;opacity:.7">100.0.1.x</span></div>
+        <div class="topo-hline"></div>
+        <div class="topo-node tn-isp">ISP002<br><span style="font-size:9px;opacity:.7">100.0.2.x</span></div>
+        <div class="topo-hline"></div>
+        <div class="topo-node tn-isp">ISP003<br><span style="font-size:9px;opacity:.7">100.0.3.x</span></div>
+        <div class="topo-hline"></div>
+        <div class="topo-node tn-isp">ISP004<br><span style="font-size:9px;opacity:.7">100.0.4.x</span></div>
+      </div>
+      <div class="topo-vline"></div>
+      <p style="font-size:11px;color:#475569;margin:4px 0 8px;text-align:center">CORE LAYER — OSPF Process 1 · IPsec VPN · NAT/PAT · ACL · SSH</p>
+      <div class="topo-row">
+        <div class="topo-node tn-core">A-CR1<br><span style="font-size:9px;opacity:.7">10.2.1.x</span></div>
+        <div style="width:20px;height:1px;background:#2d3148"></div>
+        <div class="topo-node tn-core">HQ-CR1<br><span style="font-size:9px;opacity:.7">10.1.1.x</span></div>
+        <div style="width:10px;height:1px;background:#2d3148"></div>
+        <div class="topo-node tn-core">HQ-CR2<br><span style="font-size:9px;opacity:.7">10.1.1.x</span></div>
+        <div style="width:20px;height:1px;background:#2d3148"></div>
+        <div class="topo-node tn-core">B-CR1<br><span style="font-size:9px;opacity:.7">10.3.1.x</span></div>
+      </div>
+      <div class="topo-vline"></div>
+      <p style="font-size:11px;color:#475569;margin:4px 0 8px;text-align:center">DISTRIBUTION LAYER — HSRP v2 · EtherChannel LACP · Rapid-PVST · DHCP relay</p>
+      <div class="topo-row">
+        <div class="topo-node tn-dist">A-DSW1<br><span style="font-size:9px;opacity:.7">10.2.10.4</span></div>
+        <div style="width:4px;height:1px;background:#2d3148"></div>
+        <div class="topo-node tn-dist">A-DSW2<br><span style="font-size:9px;opacity:.7">10.2.10.5</span></div>
+        <div style="width:14px"></div>
+        <div class="topo-node tn-dist">HQ-DSW1<br><span style="font-size:9px;opacity:.7">10.1.10.4</span></div>
+        <div style="width:4px;height:1px;background:#2d3148"></div>
+        <div class="topo-node tn-dist">HQ-DSW2<br><span style="font-size:9px;opacity:.7">10.1.10.5</span></div>
+        <div style="width:4px;height:1px;background:#2d3148"></div>
+        <div class="topo-node tn-dist">HQ-DSW3<br><span style="font-size:9px;opacity:.7">10.1.10.6</span></div>
+        <div style="width:4px;height:1px;background:#2d3148"></div>
+        <div class="topo-node tn-dist">HQ-DSW4<br><span style="font-size:9px;opacity:.7">10.1.10.7</span></div>
+        <div style="width:14px"></div>
+        <div class="topo-node tn-dist">B-DSW1<br><span style="font-size:9px;opacity:.7">10.3.10.4</span></div>
+        <div style="width:4px;height:1px;background:#2d3148"></div>
+        <div class="topo-node tn-dist">B-DSW2<br><span style="font-size:9px;opacity:.7">10.3.10.5</span></div>
+      </div>
+      <div class="topo-vline"></div>
+      <p style="font-size:11px;color:#475569;margin:4px 0 8px;text-align:center">ACCESS LAYER — VLANs 10/20/30/99 · 802.1Q Trunking · PortFast · BPDU Guard</p>
+      <div class="topo-row">
+        <div class="topo-node tn-acc">A-ASW1~4<br><span style="font-size:9px;opacity:.7">10.2.10.11~14</span></div>
+        <div style="width:20px"></div>
+        <div class="topo-node tn-acc">HQ-ASW1~6<br><span style="font-size:9px;opacity:.7">10.1.10.11~16</span></div>
+        <div style="width:20px"></div>
+        <div class="topo-node tn-acc">B-ASW1~4<br><span style="font-size:9px;opacity:.7">10.3.10.11~14</span></div>
+      </div>
+      <div class="topo-legend">
+        <span><span class="legend-dot" style="background:#2e1065;border:1.5px solid #5b21b6"></span>ISP cloud</span>
+        <span><span class="legend-dot" style="background:#1e3a5f;border:1.5px solid #1d4ed8"></span>Core routers</span>
+        <span><span class="legend-dot" style="background:#052e16;border:1.5px solid #15803d"></span>Distribution switches</span>
+        <span><span class="legend-dot" style="background:#1a1d27;border:1.5px solid #374151"></span>Access switches</span>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:20px;padding-top:16px;border-top:1px solid #2d3148">
+      <div style="background:#0f1117;border-radius:8px;padding:12px;border:1px solid #2d3148">
+        <div style="font-size:12px;color:#64748b;margin-bottom:4px">Routing protocol</div>
+        <div style="font-size:13px;font-weight:600">OSPF Area 0</div>
+        <div style="font-size:11px;color:#475569;margin-top:2px">Process 1 internal · Process 100 ISP</div>
+      </div>
+      <div style="background:#0f1117;border-radius:8px;padding:12px;border:1px solid #2d3148">
+        <div style="font-size:12px;color:#64748b;margin-bottom:4px">WAN security</div>
+        <div style="font-size:13px;font-weight:600">IPsec VPN</div>
+        <div style="font-size:11px;color:#475569;margin-top:2px">AES-256 · SHA256 · DH Group 14</div>
+      </div>
+      <div style="background:#0f1117;border-radius:8px;padding:12px;border:1px solid #2d3148">
+        <div style="font-size:12px;color:#64748b;margin-bottom:4px">Gateway redundancy</div>
+        <div style="font-size:13px;font-weight:600">HSRP v2</div>
+        <div style="font-size:11px;color:#475569;margin-top:2px">Priority 110/90 · Preempt enabled</div>
+      </div>
+      <div style="background:#0f1117;border-radius:8px;padding:12px;border:1px solid #2d3148">
+        <div style="font-size:12px;color:#64748b;margin-bottom:4px">Link aggregation</div>
+        <div style="font-size:13px;font-weight:600">EtherChannel</div>
+        <div style="font-size:11px;color:#475569;margin-top:2px">LACP mode active · Port-channel1</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PATH ANALYSIS -->
+<div id="page-paths" class="page">
+  <div class="g2">
+    <div class="card">
+      <div class="card-title"><i class="ti ti-route"></i> Dijkstra's shortest path algorithm</div>
+      <p style="font-size:13px;color:#64748b;margin-bottom:14px;line-height:1.6">
+        Dijkstra's algorithm finds the minimum-cost path in a weighted graph. This network uses hop count as the cost metric.
+        The algorithm maintains a priority queue, always expanding the lowest-cost unvisited node until the destination is reached.
+      </p>
+
+      <p style="font-size:11px;color:#475569;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">Primary paths — leased lines</p>
+      <div class="path-card">
+        <div class="path-nodes">
+          <span class="path-node src">HQ-CR1</span><span class="path-arrow">→</span>
+          <span class="path-node dst">A-CR1</span>
+        </div>
+        <div class="path-meta"><span>Leased line 10.0.12.0/30</span><span>Cost: 10 hops</span><span class="pbadge pb-primary">Primary</span></div>
+      </div>
+      <div class="path-card">
+        <div class="path-nodes">
+          <span class="path-node src">HQ-CR2</span><span class="path-arrow">→</span>
+          <span class="path-node dst">B-CR1</span>
+        </div>
+        <div class="path-meta"><span>Leased line 10.0.13.0/30</span><span>Cost: 10 hops</span><span class="pbadge pb-primary">Primary</span></div>
+      </div>
+
+      <p style="font-size:11px;color:#475569;margin:12px 0 8px;text-transform:uppercase;letter-spacing:.5px">VPN failover paths</p>
+      <div class="path-card vpn">
+        <div class="path-nodes">
+          <span class="path-node src">HQ-CR1</span><span class="path-arrow">→</span>
+          <span class="path-node">ISP002</span><span class="path-arrow">→</span>
+          <span class="path-node">ISP001</span><span class="path-arrow">→</span>
+          <span class="path-node dst">A-CR1</span>
+        </div>
+        <div class="path-meta"><span><i class="ti ti-lock" style="font-size:12px"></i> AES-256 IPsec tunnel</span><span>Cost: 30 hops</span><span class="pbadge pb-vpn">VPN Failover</span></div>
+      </div>
+      <div class="path-card vpn">
+        <div class="path-nodes">
+          <span class="path-node src">HQ-CR2</span><span class="path-arrow">→</span>
+          <span class="path-node">ISP003</span><span class="path-arrow">→</span>
+          <span class="path-node">ISP004</span><span class="path-arrow">→</span>
+          <span class="path-node dst">B-CR1</span>
+        </div>
+        <div class="path-meta"><span><i class="ti ti-lock" style="font-size:12px"></i> AES-256 IPsec tunnel</span><span>Cost: 30 hops</span><span class="pbadge pb-vpn">VPN Failover</span></div>
+      </div>
+
+      <p style="font-size:11px;color:#475569;margin:12px 0 8px;text-transform:uppercase;letter-spacing:.5px">Inter-branch path (ACL policy — via HQ)</p>
+      <div class="path-card policy">
+        <div class="path-nodes">
+          <span class="path-node src">A-CR1</span><span class="path-arrow">→</span>
+          <span class="path-node">HQ-CR1</span><span class="path-arrow">→</span>
+          <span class="path-node">HQ-CR2</span><span class="path-arrow">→</span>
+          <span class="path-node dst">B-CR1</span>
+        </div>
+        <div class="path-meta"><span>Branches route through HQ by policy</span><span>Cost: 21 hops</span><span class="pbadge pb-policy">Policy Route</span></div>
+      </div>
+
+      <p style="font-size:11px;color:#475569;margin:12px 0 8px;text-transform:uppercase;letter-spacing:.5px">Computed paths from database</p>
+      <div id="db-paths"><div class="loading"><i class="ti ti-loader"></i> Loading...</div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><i class="ti ti-code"></i> Algorithm trace — HQ-CR1 to A-CR1</div>
+      <div class="code-box">
+<span style="color:#475569">// Graph: nodes=routers, edges=links, weight=hops</span>
+<span style="color:#a78bfa">graph</span> = {
+  <span style="color:#4ade80">'HQ-CR1'</span>: {<span style="color:#4ade80">'HQ-CR2'</span>:<span style="color:#fbbf24">1</span>, <span style="color:#4ade80">'A-CR1'</span>:<span style="color:#fbbf24">10</span>, <span style="color:#4ade80">'HQ-DSW1'</span>:<span style="color:#fbbf24">1</span>},
+  <span style="color:#4ade80">'HQ-CR2'</span>: {<span style="color:#4ade80">'HQ-CR1'</span>:<span style="color:#fbbf24">1</span>, <span style="color:#4ade80">'B-CR1'</span>:<span style="color:#fbbf24">10</span>},
+  <span style="color:#4ade80">'A-CR1'</span>:  {<span style="color:#4ade80">'HQ-CR1'</span>:<span style="color:#fbbf24">10</span>, <span style="color:#4ade80">'A-DSW1'</span>:<span style="color:#fbbf24">1</span>},
+  <span style="color:#94a3b8">... 26 nodes total</span>
+}
+
+<span style="color:#475569">// Priority queue (min-heap)</span>
+<span style="color:#a78bfa">pq</span> = [(<span style="color:#fbbf24">0</span>, <span style="color:#4ade80">'HQ-CR1'</span>)]
+<span style="color:#a78bfa">dist</span> = {<span style="color:#4ade80">'HQ-CR1'</span>:<span style="color:#fbbf24">0</span>, all others: <span style="color:#fbbf24">∞</span>}
+
+<span style="color:#475569">// Iteration 1: pop HQ-CR1 (cost=0)</span>
+<span style="color:#60a5fa">→ relax HQ-CR2: dist=1  → push (1, HQ-CR2)</span>
+<span style="color:#60a5fa">→ relax A-CR1:  dist=10 → push (10, A-CR1)</span>
+<span style="color:#60a5fa">→ relax HQ-DSW1: dist=1 → push (1, HQ-DSW1)</span>
+
+<span style="color:#475569">// Iteration 2: pop HQ-CR2 (cost=1)</span>
+<span style="color:#60a5fa">→ relax B-CR1: dist=11 → push (11, B-CR1)</span>
+
+<span style="color:#475569">// Iteration 3: pop HQ-DSW1 (cost=1)</span>
+<span style="color:#60a5fa">→ already visited or higher cost, skip</span>
+
+<span style="color:#475569">// Iteration 4: pop A-CR1 (cost=10) ← DESTINATION!</span>
+<span style="color:#4ade80">✓ OPTIMAL PATH: HQ-CR1 → A-CR1</span>
+<span style="color:#4ade80">✓ MINIMUM COST: 10 hops</span>
+      </div>
+
+      <div style="margin-top:14px">
+        <p style="font-size:11px;color:#475569;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">Path cost comparison</p>
+        <div class="chart-wrap">
+          <canvas id="pathChart" role="img" aria-label="Path cost comparison chart">Path costs.</canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MONITORING -->
+<div id="page-monitoring" class="page">
+  <div class="g2" style="margin-bottom:16px">
+    <div class="card">
+      <div class="card-title"><i class="ti ti-activity"></i> Device status</div>
+      <div class="chart-wrap"><canvas id="statusChart" role="img" aria-label="Device status">Status.</canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><i class="ti ti-device-desktop"></i> Device types</div>
+      <div class="chart-wrap"><canvas id="typeChart" role="img" aria-label="Device types">Types.</canvas></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title" style="margin:0"><i class="ti ti-bell"></i> All network alerts</div>
+      <button class="btn btn-outline btn-sm" onclick="loadAlerts()"><i class="ti ti-refresh"></i> Refresh</button>
+    </div>
+    <div id="all-alerts"><div class="loading"><i class="ti ti-loader"></i> Loading...</div></div>
+  </div>
+</div>
+
+<!-- CONFIG BACKUP -->
+<div id="page-backup" class="page">
+  <div class="g2">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title" style="margin:0"><i class="ti ti-database"></i> Configuration backups</div>
+        <button class="btn btn-blue btn-sm" onclick="alert('Run: python3 ~/automation/backup_configs.py\n\nRequires PNetLab connection.')">
+          <i class="ti ti-download"></i> Run backup
+        </button>
+      </div>
+      <div id="backup-list"><div class="loading"><i class="ti ti-loader"></i> Loading...</div></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><i class="ti ti-info-circle"></i> Backup guide</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+        <div style="background:#0f1117;border-radius:8px;padding:14px;border:1px solid #2d3148;text-align:center">
+          <div class="value c-purple" id="backup-count" style="font-size:24px">--</div>
+          <div style="font-size:12px;color:#64748b;margin-top:4px">Total backups</div>
+        </div>
+        <div style="background:#0f1117;border-radius:8px;padding:14px;border:1px solid #2d3148;text-align:center">
+          <div class="value c-green" id="device-count" style="font-size:24px">--</div>
+          <div style="font-size:12px;color:#64748b;margin-top:4px">Devices tracked</div>
+        </div>
+      </div>
+      <div class="code-box">
+<span style="color:#475569"># Connect to Linux server</span>
+<span style="color:#4ade80">ssh netadmin@192.168.1.140</span>
+
+<span style="color:#475569"># Run config backup</span>
+<span style="color:#4ade80">cd ~/automation</span>
+<span style="color:#4ade80">python3 backup_configs.py</span>
+
+<span style="color:#475569"># Run health check</span>
+<span style="color:#4ade80">python3 health_score.py</span>
+
+<span style="color:#475569"># Schedule (cron every 6h)</span>
+<span style="color:#4ade80">crontab -e</span>
+<span style="color:#94a3b8">0 */6 * * * python3 ~/automation/backup_configs.py</span>
+<span style="color:#94a3b8">0 */1 * * * python3 ~/automation/health_score.py</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- INVENTORY -->
+<div id="page-inventory" class="page">
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title" style="margin:0"><i class="ti ti-list"></i> Device inventory</div>
+      <input type="text" class="search-input" id="search" placeholder="Search hostname or IP..." oninput="filterTable()">
+    </div>
+    <table id="inv-table">
+      <thead>
+        <tr><th>#</th><th>Hostname</th><th>IP address</th><th>Type</th><th>Site</th><th>Status</th><th>Added</th><th>Actions</th></tr>
+      </thead>
+      <tbody id="inv-body">
+        <tr><td colspan="8" class="loading"><i class="ti ti-loader"></i> Loading...</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="footer">
+  Automated Multi-Branch Enterprise Network &nbsp;·&nbsp; Lumbini City College, TU &nbsp;·&nbsp; BSc CSIT 2023–2027 &nbsp;·&nbsp; Aayush Chapagain
+</div>
+
+<script>
+// ── TAB SWITCHING ──────────────────────────────────────────
+function switchPage(name) {
+  document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
+  document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+  var page = document.getElementById('page-' + name);
+  if (page) page.classList.add('active');
+  var tabs = document.querySelectorAll('.tab');
+  tabs.forEach(function(t) { if (t.getAttribute('data-page') === name) t.classList.add('active'); });
+  if (name === 'monitoring') { loadAlerts(); loadCharts(); }
+  if (name === 'inventory') loadInventory();
+  if (name === 'backup') loadBackups();
+  if (name === 'paths') loadPaths();
+  if (name === 'command') loadDeviceList();
+}
+
+document.querySelectorAll('.tab').forEach(function(tab) {
+  tab.addEventListener('click', function() {
+    switchPage(this.getAttribute('data-page'));
+  });
+});
+
+// ── CLOCK ─────────────────────────────────────────────────
+function updateClock() {
+  var now = new Date();
+  document.getElementById('clock').innerHTML = '<i class="ti ti-clock"></i> ' + now.toLocaleString();
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// ── API HELPERS ────────────────────────────────────────────
+function fetchJSON(url, cb) {
+  fetch(url).then(function(r) { return r.json(); }).then(cb).catch(function(e) { console.error(url, e); });
+}
+
+// ── LOAD STATS ────────────────────────────────────────────
+function loadStats() {
+  fetchJSON('/api/stats', function(data) {
+    document.getElementById('m-total').textContent = data.total;
+    document.getElementById('m-online').textContent = data.online;
+    document.getElementById('m-offline').textContent = data.offline;
+    document.getElementById('m-alerts').textContent = data.alerts;
+    document.getElementById('m-backups').textContent = data.backups;
+    var avail = data.total > 0 ? Math.round(data.online / data.total * 100) : 0;
+    document.getElementById('m-avail').textContent = avail + '% available';
+    document.getElementById('m-sla').textContent = avail.toFixed(1) + '%';
+    if (document.getElementById('backup-count')) document.getElementById('backup-count').textContent = data.backups;
+    if (document.getElementById('device-count')) document.getElementById('device-count').textContent = data.total;
+  });
+}
+
+// ── LOAD SITE SUMMARY ─────────────────────────────────────
+function loadSiteSummary() {
+  fetchJSON('/api/site_summary', function(sites) {
+    fetchJSON('/api/site_health', function(health) {
+      var html = '';
+      var colors = {'HQ':'#1d4ed8','BranchA':'#15803d','BranchB':'#6d28d9'};
+      sites.forEach(function(s) {
+        var score = health[s.key] || 0;
+        var status = score >= 70 ? 'healthy' : score > 0 ? 'degraded' : 'down';
+        var statusLabel = score >= 70 ? 'Healthy' : score > 0 ? 'Degraded' : 'Down';
+        var color = score >= 70 ? '#22c55e' : score > 0 ? '#f59e0b' : '#ef4444';
+        var textColor = score >= 70 ? 'c-green' : score > 0 ? 'c-amber' : 'c-red';
+        html += '<div class="site-card">';
+        html += '<div class="site-name"><i class="ti ti-building" style="color:#64748b"></i> ' + s.name;
+        html += '<span class="pill pill-' + status + '" style="margin-left:auto">' + statusLabel + '</span></div>';
+        html += '<div class="site-score ' + textColor + '">' + score + '<span style="font-size:16px;color:#475569">/100</span></div>';
+        html += '<div class="progress-bg"><div class="progress-fill" style="width:' + score + '%;background:' + color + '"></div></div>';
+        html += '<div class="site-meta"><i class="ti ti-device-desktop" style="font-size:12px"></i> ' + s.total + ' devices &nbsp;·&nbsp; ';
+        html += '<span style="color:#4ade80">' + s.online + ' online</span> &nbsp;·&nbsp; ';
+        html += '<span style="color:#f87171">' + s.offline + ' offline</span></div>';
+        html += '</div>';
+      });
+      document.getElementById('site-grid').innerHTML = html;
+
+      // Draw health chart
+      var ctx = document.getElementById('healthChart');
+      if (ctx) {
+        new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: ['HQ', 'Branch A', 'Branch B'],
+            datasets: [{
+              label: 'Health Score',
+              data: [health['HQ']||0, health['BranchA']||0, health['BranchB']||0],
+              backgroundColor: ['#1d4ed8','#15803d','#6d28d9'],
+              borderRadius: 8, borderSkipped: false
+            }]
+          },
+          options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+              y: { min:0, max:100, ticks:{color:'#475569',font:{size:11}}, grid:{color:'rgba(255,255,255,0.04)'} },
+              x: { ticks:{color:'#94a3b8'}, grid:{display:false} }
+            }
+          }
+        });
+      }
+    });
+  });
+}
+
+// ── LOAD OVERVIEW ALERTS ──────────────────────────────────
+function loadOverviewAlerts() {
+  fetchJSON('/api/alerts', function(alerts) {
+    if (!alerts.length) {
+      document.getElementById('overview-alerts').innerHTML = '<div style="text-align:center;padding:24px;color:#4ade80"><i class="ti ti-circle-check" style="font-size:24px;display:block;margin-bottom:8px"></i>No alerts</div>';
+      return;
+    }
+    var html = '';
+    alerts.slice(0,5).forEach(function(a) {
+      html += renderAlert(a);
+    });
+    document.getElementById('overview-alerts').innerHTML = html;
+  });
+}
+
+function renderAlert(a) {
+  var icon = a.severity === 'critical' ? 'alert-circle' : a.severity === 'warning' ? 'alert-triangle' : 'info-circle';
+  var desc = a.severity === 'critical'
+    ? 'Device unreachable via ICMP. Check: device power, interface status, network path.'
+    : a.severity === 'warning'
+    ? 'Degraded performance. Check: interface errors, CPU/memory utilization.'
+    : 'Informational event. No immediate action required.';
+  return '<div class="alert-card ' + a.severity + '">' +
+    '<div class="alert-icon ' + a.severity + '"><i class="ti ti-' + icon + '"></i></div>' +
+    '<div style="flex:1">' +
+    '<div class="alert-title">' + a.hostname + ' — ' + (a.alert_type||'').charAt(0).toUpperCase() + (a.alert_type||'').slice(1) + ' alert</div>' +
+    '<div class="alert-desc">' + desc + ' &nbsp;·&nbsp; ' + (a.message||'') + '</div>' +
+    '<div class="alert-footer">' +
+    '<span><i class="ti ti-clock" style="font-size:11px"></i> ' + a.created_at + '</span>' +
+    '<span class="pill pill-' + a.severity + '">' + a.severity + '</span>' +
+    '</div></div></div>';
+}
+
+// ── LOAD ALL ALERTS ───────────────────────────────────────
+function loadAlerts() {
+  fetchJSON('/api/alerts', function(alerts) {
+    if (!alerts.length) {
+      document.getElementById('all-alerts').innerHTML = '<div style="text-align:center;padding:40px;color:#4ade80"><i class="ti ti-circle-check" style="font-size:32px;display:block;margin-bottom:10px"></i>No alerts</div>';
+      return;
+    }
+    var html = '';
+    alerts.forEach(function(a) { html += renderAlert(a); });
+    document.getElementById('all-alerts').innerHTML = html;
+  });
+}
+
+// ── LOAD CHARTS ───────────────────────────────────────────
+var chartsLoaded = false;
+function loadCharts() {
+  if (chartsLoaded) return;
+  chartsLoaded = true;
+  fetchJSON('/api/stats', function(data) {
+    new Chart(document.getElementById('statusChart'), {
+      type: 'doughnut',
+      data: { labels:['Online','Offline'], datasets:[{data:[data.online,data.offline],backgroundColor:['#16a34a','#dc2626'],borderWidth:0}] },
+      options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom',labels:{color:'#94a3b8',font:{size:12},padding:16}}} }
+    });
+    new Chart(document.getElementById('typeChart'), {
+      type: 'doughnut',
+      data: { labels:['Routers','Switches'], datasets:[{data:[4,22],backgroundColor:['#2563eb','#16a34a'],borderWidth:0}] },
+      options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom',labels:{color:'#94a3b8',font:{size:12},padding:16}}} }
+    });
+  });
+
+  new Chart(document.getElementById('pathChart'), {
+    type: 'bar',
+    data: {
+      labels: ['HQ→A Primary','HQ→B Primary','A→B Policy','HQ→A VPN','HQ→B VPN'],
+      datasets: [{label:'Cost (hops)',data:[10,10,21,30,30],backgroundColor:['#1d4ed8','#1d4ed8','#92400e','#5b21b6','#5b21b6'],borderRadius:6,borderSkipped:false}]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{y:{min:0,max:35,ticks:{color:'#475569',font:{size:10}},grid:{color:'rgba(255,255,255,0.04)'}},x:{ticks:{color:'#94a3b8',font:{size:10},maxRotation:30},grid:{display:false}}}
+    }
+  });
+}
+
+// ── LOAD PATHS ────────────────────────────────────────────
+function loadPaths() {
+  loadCharts();
+  fetchJSON('/api/paths', function(paths) {
+    if (!paths.length) {
+      document.getElementById('db-paths').innerHTML = '<div style="color:#475569;font-size:13px;text-align:center;padding:14px">Run dijkstra.py to populate paths</div>';
+      return;
+    }
+    var html = '';
+    paths.forEach(function(p) {
+      var route = p.metric_type.replace('path_','').replace(/_to_/g,' → ').replace(/_/g,'-');
+      html += '<div style="background:#0f1117;border-radius:6px;padding:9px 12px;margin-bottom:6px;border:1px solid #2d3148;font-size:12px">';
+      html += '<div style="font-family:monospace;color:#60a5fa;margin-bottom:3px">' + route + '</div>';
+      html += '<div style="color:#475569">' + p.metric_value + ' · ' + p.logged_at + '</div></div>';
+    });
+    document.getElementById('db-paths').innerHTML = html;
+  });
+}
+
+// ── LOAD DEVICE LIST (COMMAND CENTER) ────────────────────
+var selDevId = '', selDevIp = '';
+function loadDeviceList() {
+  fetchJSON('/api/devices', function(devices) {
+    var html = '';
+    devices.forEach(function(d) {
+      html += '<div class="device-item" id="ditem-' + d.id + '" onclick="selectDevice(\'' + d.id + '\',\'' + d.hostname + '\',\'' + d.ip_address + '\')">';
+      html += '<div class="device-dot ' + (d.status === 'active' ? 'dot-online' : 'dot-offline') + '"></div>';
+      html += '<div><div class="device-name">' + d.hostname + '</div><div class="device-ip">' + d.ip_address + '</div></div>';
+      html += '</div>';
+    });
+    document.getElementById('device-list').innerHTML = html;
+  });
+}
+
+function selectDevice(id, name, ip) {
+  selDevId = id; selDevIp = ip;
+  document.getElementById('sel-name').textContent = name;
+  document.getElementById('sel-ip').textContent = ip;
+  document.querySelectorAll('.device-item').forEach(function(d) { d.classList.remove('selected'); });
+  var el = document.getElementById('ditem-' + id);
+  if (el) el.classList.add('selected');
+}
+
+function setCmd(cmd) { document.getElementById('cmd-input').value = cmd; }
+function clearTerminal() { document.getElementById('terminal').innerHTML = '<span style="color:#475569">Terminal cleared.</span>'; }
+
+function execCmd() {
+  var cmd = document.getElementById('cmd-input').value.trim();
+  if (!cmd) { alert('Please enter a command.'); return; }
+  if (!selDevId) { alert('Please select a device first.'); return; }
+  var term = document.getElementById('terminal');
+  term.innerHTML += '\n<span style="color:#60a5fa">' + document.getElementById('sel-name').textContent + '#</span> ' + cmd + '\n';
+  term.innerHTML += '<span style="color:#fbbf24">Executing... (requires PNetLab connection)</span>\n';
+  term.scrollTop = term.scrollHeight;
+  fetch('/api/command', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({device_id: selDevId, command: cmd, ip: selDevIp})
+  }).then(function(r) { return r.json(); }).then(function(data) {
+    if (data.success) {
+      term.innerHTML += data.output + '\n';
+    } else {
+      term.innerHTML += '<span style="color:#f87171">Error: ' + data.output + '</span>\n';
+    }
+    term.scrollTop = term.scrollHeight;
+    loadCmdHistory();
+  }).catch(function(e) {
+    term.innerHTML += '<span style="color:#f87171">Connection failed: ' + e + '</span>\n';
+    term.scrollTop = term.scrollHeight;
+  });
+  document.getElementById('cmd-input').value = '';
+}
+
+function loadCmdHistory() {
+  fetchJSON('/api/cmd_history', function(rows) {
+    if (!rows.length) return;
+    var html = '';
+    rows.forEach(function(r) {
+      html += '<div class="history-item"><span class="h-ts">' + r.logged_at.substr(11,8) + '</span><span class="h-dev">' + r.hostname + '</span><span class="h-cmd">' + r.metric_value + '</span></div>';
+    });
+    document.getElementById('cmd-history').innerHTML = html;
+  });
+}
+
+// ── LOAD INVENTORY ────────────────────────────────────────
+function loadInventory() {
+  fetchJSON('/api/devices', function(devices) {
+    var html = '';
+    devices.forEach(function(d) {
+      var statusClass = d.status === 'active' ? 'pill-online' : 'pill-offline';
+      var statusLabel = d.status === 'active' ? 'online' : 'offline';
+      html += '<tr class="inv-row">';
+      html += '<td style="color:#475569">' + d.id + '</td>';
+      html += '<td><strong>' + d.hostname + '</strong></td>';
+      html += '<td style="font-family:monospace;font-size:12px">' + d.ip_address + '</td>';
+      html += '<td><span class="pill pill-' + d.device_type + '">' + d.device_type + '</span></td>';
+      html += '<td><span class="pill pill-' + d.site + '">' + d.site + '</span></td>';
+      html += '<td><span class="pill ' + statusClass + '">' + statusLabel + '</span></td>';
+      html += '<td style="color:#475569">' + (d.created_at||'').substr(0,10) + '</td>';
+      html += '<td><button class="btn btn-blue btn-sm" onclick="switchPage(\'command\');setTimeout(function(){selectDevice(\'' + d.id + '\',\'' + d.hostname + '\',\'' + d.ip_address + '\')},300)"><i class="ti ti-terminal-2" style="font-size:12px"></i> SSH</button></td>';
+      html += '</tr>';
+    });
+    document.getElementById('inv-body').innerHTML = html;
+  });
+}
+
+function filterTable() {
+  var q = document.getElementById('search').value.toLowerCase();
+  document.querySelectorAll('.inv-row').forEach(function(r) {
+    r.style.display = r.textContent.toLowerCase().includes(q) ? '' : 'none';
+  });
+}
+
+// ── LOAD BACKUPS ──────────────────────────────────────────
+function loadBackups() {
+  fetchJSON('/api/backups', function(backups) {
+    if (!backups.length) {
+      document.getElementById('backup-list').innerHTML = '<div style="text-align:center;padding:40px;color:#475569"><i class="ti ti-database-off" style="font-size:32px;display:block;margin-bottom:10px"></i>No backups yet.<br><span style="font-size:12px">Connect to PNetLab and run backup_configs.py</span></div>';
+      return;
+    }
+    var html = '';
+    backups.forEach(function(b) {
+      var size = b.size ? (b.size / 1024).toFixed(1) + ' KB' : '—';
+      html += '<div style="background:#0f1117;border-radius:8px;padding:12px 14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;border:1px solid #2d3148">';
+      html += '<div><div style="font-size:13px;font-weight:600"><i class="ti ti-file-code" style="font-size:13px;color:#64748b"></i> ' + (b.hostname||'Device') + ' — config.txt</div>';
+      html += '<div style="font-size:11px;color:#64748b;margin-top:3px">' + b.backup_date + ' · ' + size + '</div></div>';
+      html += '<button class="btn btn-outline btn-sm"><i class="ti ti-eye"></i> View</button>';
+      html += '</div>';
+    });
+    document.getElementById('backup-list').innerHTML = html;
+  });
+}
+
+// ── INIT ──────────────────────────────────────────────────
+loadStats();
+loadSiteSummary();
+loadOverviewAlerts();
+loadCmdHistory();
+setInterval(loadStats, 30000);
+setInterval(loadSiteSummary, 60000);
+setInterval(loadOverviewAlerts, 60000);
+</script>
+</body>
+</html>
