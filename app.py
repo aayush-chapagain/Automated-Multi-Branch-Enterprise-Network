@@ -152,5 +152,31 @@ def api_cloud_backup():
     except Exception as e:
         return jsonify(success=False, message=f'❌ Backup failed: {str(e)}')
 
+
+@app.route('/api/syslog')
+def api_syslog():
+    try:
+        lines = []
+        with open('/var/log/network-devices.log', 'r') as f:
+            all_lines = f.readlines()
+        last_lines = all_lines[-100:]
+        for line in reversed(last_lines):
+            line = line.strip()
+            if not line:
+                continue
+            parts = line.split(' ', 2)
+            timestamp = parts[0] if len(parts) > 0 else ''
+            device_ip = parts[1] if len(parts) > 1 else ''
+            message = parts[2] if len(parts) > 2 else line
+            severity = 'info'
+            if any(x in message for x in ['DOWN','down','Error','error','FAIL','denied']):
+                severity = 'critical'
+            elif any(x in message for x in ['WARN','Changed','changed','UP','up']):
+                severity = 'warning'
+            lines.append({'timestamp':timestamp,'device_ip':device_ip,'message':message,'severity':severity})
+        return jsonify(lines[:50])
+    except Exception as e:
+        return jsonify([])
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=False)
