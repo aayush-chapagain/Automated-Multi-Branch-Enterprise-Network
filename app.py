@@ -133,6 +133,15 @@ def index():
 HTML = open('/home/netadmin/automation/index.html').read()
 
 
+
+@app.route('/api/save_path', methods=['POST'])
+def api_save_path():
+    data = request.json
+    execute("INSERT INTO monitoring_logs (device_id, metric_type, metric_value) VALUES (1, %s, %s)",
+        (f"path_{data['src']}_to_{data['dst']}",
+         f"path={data['path']} | cost={data['cost']} | dk_iter={data['dk_iter']} | bf_iter={data['bf_iter']}"))
+    return jsonify(success=True)
+
 @app.route('/api/cloud_backup', methods=['POST'])
 def api_cloud_backup():
     try:

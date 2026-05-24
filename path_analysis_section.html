@@ -1,0 +1,187 @@
+<div id="page-paths" class="page">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+    <div class="card">
+      <div class="card-title"><i class="ti ti-route"></i> Interactive Path Calculator</div>
+      <p style="font-size:13px;color:#64748b;margin-bottom:14px">Select source and destination to calculate shortest path using both algorithms in real-time.</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+        <div>
+          <p style="font-size:11px;color:#475569;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">Source</p>
+          <select id="src-node" style="width:100%;background:#0f1117;border:1px solid #2d3148;border-radius:6px;padding:8px;color:#e2e8f0;font-size:13px;outline:none">
+            <option value="HQ-CR1">HQ-CR1</option>
+            <option value="HQ-CR2">HQ-CR2</option>
+            <option value="HQ-DSW1">HQ-DSW1</option>
+            <option value="HQ-DSW2">HQ-DSW2</option>
+            <option value="HQ-DSW3">HQ-DSW3</option>
+            <option value="HQ-DSW4">HQ-DSW4</option>
+            <option value="A-CR1">A-CR1</option>
+            <option value="A-DSW1">A-DSW1</option>
+            <option value="A-DSW2">A-DSW2</option>
+            <option value="B-CR1">B-CR1</option>
+            <option value="B-DSW1">B-DSW1</option>
+            <option value="B-DSW2">B-DSW2</option>
+          </select>
+        </div>
+        <div>
+          <p style="font-size:11px;color:#475569;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">Destination</p>
+          <select id="dst-node" style="width:100%;background:#0f1117;border:1px solid #2d3148;border-radius:6px;padding:8px;color:#e2e8f0;font-size:13px;outline:none">
+            <option value="A-CR1">A-CR1</option>
+            <option value="B-CR1">B-CR1</option>
+            <option value="HQ-CR1">HQ-CR1</option>
+            <option value="HQ-CR2">HQ-CR2</option>
+            <option value="HQ-DSW1">HQ-DSW1</option>
+            <option value="HQ-DSW2">HQ-DSW2</option>
+            <option value="HQ-DSW3">HQ-DSW3</option>
+            <option value="HQ-DSW4">HQ-DSW4</option>
+            <option value="A-DSW1">A-DSW1</option>
+            <option value="A-DSW2">A-DSW2</option>
+            <option value="B-DSW1">B-DSW1</option>
+            <option value="B-DSW2">B-DSW2</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn btn-blue" style="width:100%;margin-bottom:14px" onclick="runAlgorithms()">
+        <i class="ti ti-play"></i> Calculate Shortest Path
+      </button>
+      <div id="algo-results" style="display:none">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+          <div style="background:#0f1117;border:1px solid #1d4ed8;border-radius:8px;padding:12px">
+            <div style="font-size:11px;color:#60a5fa;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px;font-weight:600">Dijkstra</div>
+            <div style="font-size:22px;font-weight:700;color:#60a5fa" id="dk-cost">--</div>
+            <div style="font-size:11px;color:#475569;margin-top:2px">hops</div>
+            <div style="font-size:11px;color:#64748b;margin-top:6px">Iterations: <span id="dk-iter" style="color:#94a3b8">--</span></div>
+            <div style="font-size:11px;color:#64748b">Time: <span id="dk-time" style="color:#94a3b8">--</span>ms</div>
+            <div style="font-size:11px;color:#64748b">Complexity: <span style="color:#94a3b8">O((V+E)logV)</span></div>
+          </div>
+          <div style="background:#0f1117;border:1px solid #6d28d9;border-radius:8px;padding:12px">
+            <div style="font-size:11px;color:#a78bfa;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px;font-weight:600">Bellman-Ford</div>
+            <div style="font-size:22px;font-weight:700;color:#a78bfa" id="bf-cost">--</div>
+            <div style="font-size:11px;color:#475569;margin-top:2px">hops</div>
+            <div style="font-size:11px;color:#64748b;margin-top:6px">Iterations: <span id="bf-iter" style="color:#94a3b8">--</span></div>
+            <div style="font-size:11px;color:#64748b">Time: <span id="bf-time" style="color:#94a3b8">--</span>ms</div>
+            <div style="font-size:11px;color:#64748b">Complexity: <span style="color:#94a3b8">O(VxE)</span></div>
+          </div>
+        </div>
+        <div style="background:#0f1117;border-radius:8px;padding:12px;margin-bottom:10px;border:1px solid #2d3148">
+          <div style="font-size:11px;color:#475569;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">Optimal Path</div>
+          <div id="path-visual" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap"></div>
+        </div>
+        <div id="match-indicator" style="background:#052e16;border:1px solid #166534;border-radius:8px;padding:10px;text-align:center;font-size:13px;color:#4ade80">
+          Both algorithms found the same optimal path
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><i class="ti ti-code"></i> Step-by-step Algorithm Trace</div>
+      <div id="algo-trace" style="background:#000;border-radius:8px;padding:14px;font-family:monospace;font-size:12px;min-height:300px;max-height:460px;overflow-y:auto;line-height:1.8;color:#475569;white-space:pre-wrap">Select source and destination, then click Calculate...</div>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+    <div class="card">
+      <div class="card-title"><i class="ti ti-chart-bar"></i> Algorithm Comparison</div>
+      <div class="chart-wrap"><canvas id="algoCompareChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><i class="ti ti-info-circle"></i> Why Two Algorithms?</div>
+      <div style="font-size:13px;color:#94a3b8;line-height:1.8">
+        <div style="margin-bottom:10px;padding:10px;background:#0f1117;border-radius:8px;border-left:3px solid #3b82f6">
+          <div style="font-weight:600;color:#60a5fa;margin-bottom:4px">Dijkstra Algorithm</div>
+          Uses a min-heap priority queue. Always expands the lowest-cost node first. Cannot handle negative weights. Optimal for this network with complexity O((V+E)logV).
+        </div>
+        <div style="margin-bottom:10px;padding:10px;background:#0f1117;border-radius:8px;border-left:3px solid #7c3aed">
+          <div style="font-weight:600;color:#a78bfa;margin-bottom:4px">Bellman-Ford Algorithm</div>
+          Relaxes all edges V-1 times. Slower but handles negative weights and detects negative cycles. Used to validate Dijkstra results with complexity O(VxE).
+        </div>
+        <div style="padding:10px;background:#052e16;border-radius:8px;border-left:3px solid #22c55e">
+          <div style="font-weight:600;color:#4ade80;margin-bottom:4px">Conclusion</div>
+          Both algorithms produce identical results. Dijkstra is preferred for production due to better time complexity.
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title"><i class="ti ti-network"></i> Network Path Reference</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+      <div style="background:#0f1117;border-radius:8px;padding:12px;border:1px solid #2d3148;border-left:3px solid #3b82f6">
+        <div style="font-size:11px;color:#60a5fa;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px;font-weight:600">Primary - Leased Lines</div>
+        <div style="font-size:12px;font-family:monospace;color:#94a3b8;line-height:2">HQ-CR1 to A-CR1 &nbsp;<span style="color:#4ade80">10 hops</span><br>HQ-CR2 to B-CR1 &nbsp;<span style="color:#4ade80">10 hops</span></div>
+      </div>
+      <div style="background:#0f1117;border-radius:8px;padding:12px;border:1px solid #2d3148;border-left:3px solid #7c3aed">
+        <div style="font-size:11px;color:#a78bfa;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px;font-weight:600">Failover - IPsec VPN</div>
+        <div style="font-size:12px;font-family:monospace;color:#94a3b8;line-height:2">HQ-CR1 via ISP to A-CR1 &nbsp;<span style="color:#f87171">30 hops</span><br>HQ-CR2 via ISP to B-CR1 &nbsp;<span style="color:#f87171">30 hops</span></div>
+      </div>
+      <div style="background:#0f1117;border-radius:8px;padding:12px;border:1px solid #2d3148;border-left:3px solid #f59e0b">
+        <div style="font-size:11px;color:#fbbf24;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px;font-weight:600">Policy - Inter-Branch</div>
+        <div style="font-size:12px;font-family:monospace;color:#94a3b8;line-height:2">A-CR1 to HQ-CR1 to HQ-CR2 to B-CR1<br><span style="color:#fbbf24">21 hops via HQ by ACL policy</span></div>
+      </div>
+    </div>
+  </div>
+  <script>
+var GRAPH={'HQ-CR1':{'HQ-CR2':1,'A-CR1':10,'HQ-DSW1':1,'HQ-DSW2':1,'HQ-DSW3':1,'HQ-DSW4':1},'HQ-CR2':{'HQ-CR1':1,'B-CR1':10,'HQ-DSW1':1,'HQ-DSW2':1,'HQ-DSW3':1,'HQ-DSW4':1},'A-CR1':{'HQ-CR1':10,'A-DSW1':1,'A-DSW2':1},'B-CR1':{'HQ-CR2':10,'B-DSW1':1,'B-DSW2':1},'HQ-DSW1':{'HQ-CR1':1,'HQ-CR2':1,'HQ-DSW2':1},'HQ-DSW2':{'HQ-CR1':1,'HQ-CR2':1,'HQ-DSW1':1},'HQ-DSW3':{'HQ-CR1':1,'HQ-CR2':1,'HQ-DSW4':1},'HQ-DSW4':{'HQ-CR1':1,'HQ-CR2':1,'HQ-DSW3':1},'A-DSW1':{'A-CR1':1,'A-DSW2':1},'A-DSW2':{'A-CR1':1,'A-DSW1':1},'B-DSW1':{'B-CR1':1,'B-DSW2':1},'B-DSW2':{'B-CR1':1,'B-DSW1':1}};
+var NODES=Object.keys(GRAPH);
+var algoChart=null;
+function dijkstra(src,dst){
+  var t0=performance.now(),dist={},prev={},visited={},steps=[];
+  NODES.forEach(function(n){dist[n]=Infinity;prev[n]=null;});
+  dist[src]=0;var pq=[[0,src]],iterations=0;
+  steps.push('// Graph: '+NODES.length+' nodes, Initialize dist['+src+']=0');
+  steps.push('// Priority Queue: [(0, '+src+')]');steps.push('');
+  while(pq.length>0){
+    pq.sort(function(a,b){return a[0]-b[0];});
+    var curr=pq.shift(),cost=curr[0],node=curr[1];
+    if(visited[node])continue;
+    visited[node]=true;iterations++;
+    steps.push('Iteration '+iterations+': pop '+node+' (cost='+cost+')');
+    if(node===dst){steps.push('>> DESTINATION REACHED!');break;}
+    var neighbors=GRAPH[node]||{};
+    Object.keys(neighbors).forEach(function(nb){
+      var w=neighbors[nb],newCost=cost+w;
+      if(newCost<dist[nb]){dist[nb]=newCost;prev[nb]=node;pq.push([newCost,nb]);steps.push('  relax '+nb+': dist='+newCost+' push('+newCost+','+nb+')');}
+      else{steps.push('  skip '+nb+': '+dist[nb]+' <= '+newCost);}
+    });
+  }
+  var path=[],node=dst;while(node){path.unshift(node);node=prev[node];}
+  var t1=performance.now();
+  steps.push('');steps.push('OPTIMAL PATH: '+path.join(' -> '));steps.push('MINIMUM COST: '+dist[dst]+' hops');
+  return{path:path,cost:dist[dst],iterations:iterations,time:(t1-t0).toFixed(2),steps:steps};
+}
+function bellmanFord(src,dst){
+  var t0=performance.now(),dist={},prev={};
+  NODES.forEach(function(n){dist[n]=Infinity;prev[n]=null;});
+  dist[src]=0;var edges=[];
+  NODES.forEach(function(u){Object.keys(GRAPH[u]||{}).forEach(function(v){edges.push([u,v,GRAPH[u][v]]);});});
+  var iterations=0;
+  for(var i=0;i<NODES.length-1;i++){
+    iterations++;var updated=false;
+    edges.forEach(function(e){var u=e[0],v=e[1],w=e[2];if(dist[u]!==Infinity&&dist[u]+w<dist[v]){dist[v]=dist[u]+w;prev[v]=u;updated=true;}});
+    if(!updated)break;
+  }
+  var path=[],node=dst;while(node){path.unshift(node);node=prev[node];}
+  return{path:path,cost:dist[dst],iterations:iterations,time:(performance.now()-t0).toFixed(2)};
+}
+function runAlgorithms(){
+  var src=document.getElementById('src-node').value,dst=document.getElementById('dst-node').value;
+  if(src===dst){alert('Source and destination must be different!');return;}
+  var dk=dijkstra(src,dst),bf=bellmanFord(src,dst);
+  document.getElementById('dk-cost').textContent=dk.cost;
+  document.getElementById('dk-iter').textContent=dk.iterations;
+  document.getElementById('dk-time').textContent=dk.time;
+  document.getElementById('bf-cost').textContent=bf.cost;
+  document.getElementById('bf-iter').textContent=bf.iterations;
+  document.getElementById('bf-time').textContent=bf.time;
+  var pv=document.getElementById('path-visual');pv.innerHTML='';
+  dk.path.forEach(function(node,i){
+    var cls=i===0?'color:#4ade80;border-color:#22c55e':i===dk.path.length-1?'color:#f87171;border-color:#ef4444':'color:#94a3b8;border-color:#2d3148';
+    pv.innerHTML+='<span style="background:#1a1d27;border:1px solid;border-radius:6px;padding:4px 10px;font-size:12px;font-family:monospace;font-weight:600;'+cls+'">'+node+'</span>';
+    if(i<dk.path.length-1)pv.innerHTML+='<span style="color:#475569;font-size:16px"> -> </span>';
+  });
+  var match=dk.path.join(',')===bf.path.join(','),mi=document.getElementById('match-indicator');
+  mi.style.background=match?'#052e16':'#450a0a';mi.style.borderColor=match?'#166534':'#991b1b';mi.style.color=match?'#4ade80':'#f87171';
+  mi.textContent=match?'Both algorithms found the same optimal path - results validated!':'Algorithms found different paths';
+  document.getElementById('algo-trace').textContent=dk.steps.join('\n');
+  document.getElementById('algo-results').style.display='block';
+  if(algoChart)algoChart.destroy();
+  algoChart=new Chart(document.getElementById('algoCompareChart'),{type:'bar',data:{labels:['Cost (hops)','Iterations','Time (ms x10)'],datasets:[{label:'Dijkstra',data:[dk.cost,dk.iterations,dk.time*10],backgroundColor:'#2563eb',borderRadius:6,borderSkipped:false},{label:'Bellman-Ford',data:[bf.cost,bf.iterations,bf.time*10],backgroundColor:'#7c3aed',borderRadius:6,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:'#94a3b8',font:{size:12},padding:16}}},scales:{y:{ticks:{color:'#475569',font:{size:11}},grid:{color:'rgba(255,255,255,0.04)'}},x:{ticks:{color:'#94a3b8'},grid:{display:false}}}}});
+  fetch('/api/save_path',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({src:src,dst:dst,path:dk.path.join('->'),cost:dk.cost,dk_iter:dk.iterations,bf_iter:bf.iterations})});
+}
+  </script>
+</div>
