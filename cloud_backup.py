@@ -7,6 +7,7 @@ def git_push(message):
     subprocess.run(['git', 'add', '.'], check=True)
     result = subprocess.run(['git', 'diff', '--cached', '--quiet'])
     if result.returncode != 0:
+        subprocess.run(['git', 'checkout', 'master'], check=False)
         subprocess.run(['git', 'commit', '-m', message], check=True)
         subprocess.run(['git', 'push', 'origin', 'master'], check=True)
         print(f"✅ Pushed to GitHub: {message}")
