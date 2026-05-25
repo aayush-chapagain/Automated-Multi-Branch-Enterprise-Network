@@ -188,11 +188,12 @@ tr:hover td { background: #1e2130; }
   <div class="brand"><span class="livedot"></span> Enterprise NOC</div>
   <span class="tab active" data-page="overview"><i class="ti ti-dashboard"></i> Overview</span>
   <span class="tab" data-page="command"><i class="ti ti-terminal-2"></i> Command Center</span>
-  <span class="tab" data-page="topology"><i class="ti ti-topology-star-3"></i> Topology</span>
+  
   <span class="tab" data-page="paths"><i class="ti ti-route"></i> Path Analysis</span>
   <span class="tab" data-page="monitoring"><i class="ti ti-activity"></i> Monitoring</span>
   <span class="tab" data-page="backup"><i class="ti ti-database"></i> Config Backup</span>
   <span class="tab" data-page="inventory"><i class="ti ti-list"></i> Inventory</span>
+  <span class="tab" data-page="syslog"><i class="ti ti-terminal"></i> Syslog</span>
   <div class="nav-right">
     <span class="live-badge">&#9679; Live</span>
     <span id="clock"><i class="ti ti-clock"></i> --:--:--</span>
@@ -831,8 +832,48 @@ function runAlgorithms(){
   </div>
 </div>
 
+<div id="page-syslog" class="page">
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title" style="margin:0"><i class="ti ti-terminal"></i> Real-time Syslog Viewer</div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <select id="syslog-filter" onchange="filterSyslog()" style="background:#0f1117;border:1px solid #2d3148;border-radius:6px;padding:5px 10px;color:#e2e8f0;font-size:12px;outline:none">
+          <option value="all">All severity</option>
+          <option value="critical">Critical only</option>
+          <option value="warning">Warning only</option>
+          <option value="info">Info only</option>
+        </select>
+        <input type="text" id="syslog-search" placeholder="Search logs..." oninput="filterSyslog()" style="background:#0f1117;border:1px solid #2d3148;border-radius:6px;padding:5px 10px;color:#e2e8f0;font-size:12px;outline:none;width:180px">
+        <button class="btn btn-blue btn-sm" onclick="loadSyslog()"><i class="ti ti-refresh"></i> Refresh</button>
+        <div style="background:#052e16;color:#4ade80;font-size:11px;padding:3px 10px;border-radius:99px;border:1px solid #166534">&#9679; Live</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px">
+      <div style="background:#0f1117;border-radius:8px;padding:10px;border:1px solid #2d3148;text-align:center">
+        <div style="font-size:20px;font-weight:700;color:#e2e8f0" id="sl-total">0</div>
+        <div style="font-size:11px;color:#64748b;margin-top:2px">Total logs</div>
+      </div>
+      <div style="background:#0f1117;border-radius:8px;padding:10px;border:1px solid #2d3148;text-align:center">
+        <div style="font-size:20px;font-weight:700;color:#f87171" id="sl-critical">0</div>
+        <div style="font-size:11px;color:#64748b;margin-top:2px">Critical</div>
+      </div>
+      <div style="background:#0f1117;border-radius:8px;padding:10px;border:1px solid #2d3148;text-align:center">
+        <div style="font-size:20px;font-weight:700;color:#fbbf24" id="sl-warning">0</div>
+        <div style="font-size:11px;color:#64748b;margin-top:2px">Warning</div>
+      </div>
+      <div style="background:#0f1117;border-radius:8px;padding:10px;border:1px solid #2d3148;text-align:center">
+        <div style="font-size:20px;font-weight:700;color:#60a5fa" id="sl-info">0</div>
+        <div style="font-size:11px;color:#64748b;margin-top:2px">Info</div>
+      </div>
+    </div>
+    <div id="syslog-terminal" style="background:#000;border-radius:8px;padding:14px;font-family:monospace;font-size:12px;min-height:400px;max-height:500px;overflow-y:auto;border:1px solid #1a3a1a;line-height:1.8">
+      <div style="color:#475569">Loading syslog...</div>
+    </div>
+  </div>
+</div>
+
 <div class="footer">
-  Automated Multi-Branch Enterprise Network &nbsp;·&nbsp; Lumbini City College, TU &nbsp;·&nbsp; BSc CSIT 2023–2027 &nbsp;·&nbsp; Aayush Chapagain
+  Automated Multi-Branch Enterprise Network &nbsp;·&nbsp; Lumbini City College, TU &nbsp;·&nbsp; BSc CSIT 2023–2027
 </div>
 
 <script>
@@ -1174,6 +1215,61 @@ loadSiteSummary();
 loadOverviewAlerts();
 loadCmdHistory();
 setInterval(loadStats, 30000);
+
+var syslogData = [];
+var syslogInterval = null;
+
+function loadSyslog() {
+  fetch('/api/syslog').then(function(r){ return r.json(); }).then(function(logs) {
+    syslogData = logs;
+    var critical = logs.filter(function(l){ return l.severity==='critical'; }).length;
+    var warning = logs.filter(function(l){ return l.severity==='warning'; }).length;
+    var info = logs.filter(function(l){ return l.severity==='info'; }).length;
+    document.getElementById('sl-total').textContent = logs.length;
+    document.getElementById('sl-critical').textContent = critical;
+    document.getElementById('sl-warning').textContent = warning;
+    document.getElementById('sl-info').textContent = info;
+    filterSyslog();
+  });
+}
+
+function filterSyslog() {
+  var severity = document.getElementById('syslog-filter').value;
+  var search = document.getElementById('syslog-search').value.toLowerCase();
+  var filtered = syslogData.filter(function(l) {
+    return (severity==='all' || l.severity===severity) && (!search || l.message.toLowerCase().includes(search) || l.device_ip.includes(search));
+  });
+  var colors = {critical:'#f87171',warning:'#fbbf24',info:'#60a5fa'};
+  var icons = {critical:'🔴',warning:'🟡',info:'🔵'};
+  var html = '';
+  if (!filtered.length) {
+    html = '<span style="color:#475569">No logs matching filter...</span>';
+  } else {
+    filtered.forEach(function(l) {
+      var color = colors[l.severity]||'#94a3b8';
+      var icon = icons[l.severity]||'⚪';
+      var ts = l.timestamp.substr(11,8);
+      html += '<div style="padding:3px 0;border-bottom:1px solid #0a0a0a;display:flex;gap:8px;align-items:flex-start">';
+      html += '<span style="color:#374151;flex-shrink:0;font-size:11px">'+ts+'</span>';
+      html += '<span style="color:#3b82f6;flex-shrink:0;min-width:90px;font-size:11px">'+l.device_ip+'</span>';
+      html += '<span style="color:'+color+';flex-shrink:0;font-size:10px;margin-top:1px">'+icon+'</span>';
+      html += '<span style="color:'+color+'">'+l.message+'</span></div>';
+    });
+  }
+  var term = document.getElementById('syslog-terminal');
+  if (term) term.innerHTML = html;
+}
+
+document.querySelectorAll('.tab').forEach(function(tab) {
+  tab.addEventListener('click', function() {
+    if (this.getAttribute('data-page')==='syslog') {
+      loadSyslog();
+      if (!syslogInterval) syslogInterval = setInterval(loadSyslog, 10000);
+    } else {
+      if (syslogInterval) { clearInterval(syslogInterval); syslogInterval = null; }
+    }
+  });
+});
 setInterval(loadSiteSummary, 60000);
 setInterval(loadOverviewAlerts, 30000);
 setInterval(function() {
