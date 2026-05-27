@@ -153,17 +153,35 @@ def api_cloud_backup():
         return jsonify(success=False, message=f'❌ Backup failed: {str(e)}')
 
 
+@app.route('/api/github_backups')
+def api_github_backups():
+    try:
+        import os, glob
+        files = glob.glob('/home/netadmin/automation/database/backup_*.sql')
+        files.sort(reverse=True)
+        result = []
+        for f in files[:10]:
+            stat = os.stat(f)
+            name = os.path.basename(f)
+            result.append({
+                'filename': name,
+                'size': round(stat.st_size/1024, 1),
+                'date': name.replace('backup_','').replace('.sql','')
+            })
+        return jsonify(result)
+    except Exception as e:
+        return jsonify([])
+
+
 @app.route('/api/syslog')
 def api_syslog():
     try:
-        lines = []
         with open('/var/log/network-devices.log', 'r') as f:
             all_lines = f.readlines()
-        last_lines = all_lines[-100:]
-        for line in reversed(last_lines):
+        lines = []
+        for line in reversed(all_lines[-100:]):
             line = line.strip()
-            if not line:
-                continue
+            if not line: continue
             parts = line.split(' ', 2)
             timestamp = parts[0] if len(parts) > 0 else ''
             device_ip = parts[1] if len(parts) > 1 else ''
