@@ -9,8 +9,8 @@
 
 | Name | Symbol No. | Role |
 |---|---|---|
-| Aayush Chapagain | 72012062 | Network Engineer & Automation |
-| Sanchhep Raj Shrestha | 72012077 | Network Engineer & Documentation |
+| Aayush Chapagain | 79012062 | Network Engineer & Automation |
+| Sanchhep Raj Shrestha | 79012077 | Network Engineer & Documentation |
 
 **Supervisor:** Mr. Kamal Bahadur Thapa  
 **Department:** Computer Science and Information Technology  
