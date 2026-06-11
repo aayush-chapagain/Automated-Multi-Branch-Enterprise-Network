@@ -226,8 +226,8 @@ service timestamps log datetime msec
 
 | Name | Symbol No. | GitHub | LinkedIn |
 |---|---|---|---|
-| Aayush Chapagain | 72012062 | [@aayush-chapagain](https://github.com/aayush-chapagain) | [Profile](https://linkedin.com/in/aayushchapagain) |
-| Sanchhep Raj Shrestha | 72012077 | [@Decent-Aneraj](https://github.com/Decent-Aneraj) | [Profile](https://www.linkedin.com/in/sanchhep-shrestha-b7052237b/) |
+| Aayush Chapagain | 79012062 | [@aayush-chapagain](https://github.com/aayush-chapagain) | [Profile](https://linkedin.com/in/aayushchapagain) |
+| Sanchhep Raj Shrestha | 79012077 | [@SanchhepRajShrestha](https://github.com/SanchhepRajShrestha) | [Profile](https://www.linkedin.com/in/sanchhep-shrestha-b7052237b/) |
 
 ---
 
